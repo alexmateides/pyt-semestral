@@ -33,6 +33,6 @@ jobs:
       - run: pip install mkdocs-material
 
       - name: Add CNAME for Custom Domain
-        run: echo "pst.mateides.com" > docs/CNAME
+        run: echo "pyt-semestral-docs.mateides.com" > docs/CNAME
 
       - run: mkdocs gh-deploy --force
