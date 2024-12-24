@@ -1,5 +1,7 @@
 from fastapi import APIRouter
 from fastapi.requests import Request
+from starlette.responses import JSONResponse
+
 from backend.camera.tapo_320ws.interface import Tapo320WSBaseInterface
 from backend.utils.get_auth_headers import get_auth_headers
 
@@ -20,7 +22,7 @@ async def get_info(request: Request):
         # retrieve info
         response = interface.get_info()
 
-        return response
+        return JSONResponse(status_code=200, content=response)
 
     except Exception as error:
         return NotImplementedError('Error logging for /info currently not implemented')

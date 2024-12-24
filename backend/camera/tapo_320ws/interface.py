@@ -22,3 +22,29 @@ class Tapo320WSBaseInterface(CameraBaseInterface):
         basic_info = self.tapo_interface.getBasicInfo()
 
         return basic_info
+
+    def get_light_status(self) -> dict:
+        """
+
+        Gets the floodlight status
+
+        Returns: floodlight status (on/off)
+
+        """
+
+        floodlight_status = self.tapo_interface.getWhitelampStatus()
+
+        return floodlight_status
+
+    def change_light_status(self) -> None:
+        """
+
+        Changes the floodlight status (on/off)
+
+        Returns: None
+
+        """
+
+        self.tapo_interface.reverseWhitelampStatus()
+
+        return None
