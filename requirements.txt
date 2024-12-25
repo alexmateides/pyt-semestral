@@ -4,3 +4,4 @@ fastapi~=0.115.6
 requests~=2.32.3
 pymongo
 python-dotenv
+pydantic

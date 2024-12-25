@@ -1,14 +1,11 @@
-import os
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from dotenv import find_dotenv, load_dotenv
-
 from backend.database.sqlite_interface import SqliteInterface
 
 
 # pydantic model for Camera
-class Camera(BaseModel):
+class Tapo320WSPydanticModel(BaseModel):
     name: str
     model: str
     ip: str
@@ -35,7 +32,7 @@ CREATE TABLE IF NOT EXISTS cameras (
 
 
 @router.get("/")
-async def get_all_cameras():
+async def get_all_cameras() -> JSONResponse:
     """
     Returns: List of cameras
     """
@@ -52,7 +49,7 @@ async def get_all_cameras():
 
 
 @router.post("/")
-async def add_or_update_camera(camera: Camera):
+async def add_or_update_camera(camera: Tapo320WSPydanticModel) -> JSONResponse:
     """
     If camera doesn't exist, it will be created.
     Else the params of the existing camera with the same name are updated.
@@ -90,7 +87,7 @@ async def add_or_update_camera(camera: Camera):
 
 
 @router.delete("/")
-async def delete_camera(name: str):
+async def delete_camera(name: str) -> JSONResponse:
     """
     Deletes a camera specified by name.
 
@@ -115,7 +112,7 @@ async def delete_camera(name: str):
 
 
 @router.get("/{name}")
-async def get_camera_by_name(name: str):
+async def get_camera_by_name(name: str) -> JSONResponse:
     """
     Get details of a camera by its name.
 

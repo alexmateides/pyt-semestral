@@ -39,39 +39,15 @@ async def api_validate(request: Request, call_next):
         main_logger.error(f'[SERVER]\tAPI verification ERROR {error}')
 
 
-# add headers for routing
-@app.middleware("http")
-async def inject_headers(request: Request, call_next):
-    """
-
-    Performs API authentication
-
-    """
-    try:
-        # Default values, could be fetched from a secure storage for production
-        client_ip = "192.168.0.152"
-        username = "admin"
-        password = "admin1"
-
-        # Inject headers into the request state
-        request.state.credentials = {
-            'x-client-ip': client_ip,
-            'x-username': username,
-            'x-password': password
-        }
-
-        # Log the added headers
-        main_logger.info(f"[SERVER] Added Headers: ip={client_ip}, username={username}, password={password}")
-
-        response = await call_next(request)
-        return response
-    except Exception as error:
-        main_logger.error(f'[SERVER]\tHeader injection verification ERROR {error}')
-
-
 # include api routes
+
+# alive ping (mainly used for debugging)
 app.include_router(alive_router, prefix="/alive")
+
+# tapo 320ws API
 app.include_router(tapo_320ws_router, prefix="/tapo-320ws")
+
+# camera database API
 app.include_router(camera_router, prefix="/camera")
 
 # CORS middleware for resource sharing with frontend

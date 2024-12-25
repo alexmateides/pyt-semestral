@@ -1,20 +1,19 @@
 from fastapi import APIRouter
-from fastapi.requests import Request
-from starlette.responses import JSONResponse
+from fastapi.responses import JSONResponse
 
 from backend.camera.tapo_320ws.interface import Tapo320WSBaseInterface
-from backend.utils.get_auth_headers import get_auth_headers
+from backend.camera.tapo_320ws.utils import get_auth_by_name
 
 # route /camera/info
 router = APIRouter()
 
 
 # Retrieve camera info
-@router.get("/info")
-async def get_info(request: Request):
+@router.get("/info/{name}")
+async def get_info(name: str) -> JSONResponse:
     try:
-        # extract headers
-        ip, username, password = get_auth_headers(request)
+        # get connection arguments from database
+        ip, username, password = get_auth_by_name(name)
 
         # connect to interface
         interface = Tapo320WSBaseInterface(ip, username, password)

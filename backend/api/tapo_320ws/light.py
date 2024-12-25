@@ -3,18 +3,18 @@ from fastapi.requests import Request
 from starlette.responses import JSONResponse
 
 from backend.camera.tapo_320ws.interface import Tapo320WSBaseInterface
-from backend.utils.get_auth_headers import get_auth_headers
+from backend.camera.tapo_320ws.utils import get_auth_by_name
 from asyncio import sleep as asyncio_sleep
 
 # route /camera/info
 router = APIRouter()
 
 
-@router.get("/light")
-async def get_light_status(request: Request):
+@router.get("/light/{name}")
+async def get_light_status(name: str) -> JSONResponse:
     try:
         # extract headers
-        ip, username, password = get_auth_headers(request)
+        ip, username, password = get_auth_by_name(name)
 
         # connect to interface
         interface = Tapo320WSBaseInterface(ip, username, password)
@@ -29,11 +29,11 @@ async def get_light_status(request: Request):
 
 
 # Change camera light status on/off
-@router.post("/light")
-async def change_floodlight_status(request: Request):
+@router.post("/light/{name}")
+async def change_floodlight_status(name: str) -> JSONResponse:
     try:
         # extract headers
-        ip, username, password = get_auth_headers(request)
+        ip, username, password = get_auth_by_name(name)
 
         # connect to interface
         interface = Tapo320WSBaseInterface(ip, username, password)
