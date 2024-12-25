@@ -2,3 +2,5 @@ pytapo~=3.3.37
 uvicorn~=0.34.0
 fastapi~=0.115.6
 requests~=2.32.3
+pymongo
+python-dotenv
