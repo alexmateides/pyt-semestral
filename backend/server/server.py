@@ -27,6 +27,9 @@ async def api_validate(request: Request, call_next):
     Performs API authentication
     """
     try:
+        if request.scope["type"] == "websocket":
+            return await call_next(request)
+
         if request.headers.get("api-key") != API_KEY:
             main_logger.info(f'[SERVER]\tWrong API key {request.headers}')
             return JSONResponse(status_code=401, content={"message": "Unauthorized"})

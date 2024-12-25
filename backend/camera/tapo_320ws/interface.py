@@ -42,3 +42,14 @@ class Tapo320WSBaseInterface(CameraBaseInterface):
         self.tapo_interface.reverseWhitelampStatus()
 
         return None
+
+    def get_stream_url(self) -> str:
+        """
+        Gets URL for camera stream
+
+        Returns: stream URL
+        """
+
+        stream_url = self.tapo_interface.getStreamURL()
+
+        return f"rtsp://admin1:admin1@192.168.0.152:554/stream1"
