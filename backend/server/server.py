@@ -7,6 +7,7 @@ from backend.logger import Logger
 
 from backend.api.alive import router as alive_router
 from backend.api.tapo_320ws import router as tapo_320ws_router
+from backend.api.camera import router as camera_router
 
 API_KEY = 'TEST'
 
@@ -71,6 +72,7 @@ async def inject_headers(request: Request, call_next):
 # include api routes
 app.include_router(alive_router, prefix="/alive")
 app.include_router(tapo_320ws_router, prefix="/tapo-320ws")
+app.include_router(camera_router, prefix="/camera")
 
 # CORS middleware for resource sharing with frontend
 app.add_middleware(

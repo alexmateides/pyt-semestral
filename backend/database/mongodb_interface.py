@@ -10,7 +10,7 @@ class MongoDBInterface:
 
     - insert_one/many
     - find/find_one
-    - update_one/update_many
+    - update_one/update_manya
     - delete_one/delete_many
     - create_index
     """
@@ -48,7 +48,7 @@ class MongoDBInterface:
         """
         self.db[collection].insert_many(documents)
 
-    def find_one(self, collection: str, query: dict) -> dict:
+    def find_one(self, collection: str, query: dict = None) -> dict:
         """
         Finds a single document matching the query in the specified collection.
 
@@ -60,7 +60,7 @@ class MongoDBInterface:
         """
         return self.db[collection].find_one(query)
 
-    def find(self, collection: str, query: dict, projection: dict = None) -> list:
+    def find(self, collection: str, query: dict = None, projection: dict = None) -> list:
         """
         Finds all documents matching the query in the specified collection.
 
