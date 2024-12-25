@@ -11,6 +11,13 @@ router = APIRouter()
 # Retrieve camera info
 @router.get("/info/{name}")
 async def get_info(name: str) -> JSONResponse:
+    """
+    Gets information about a camera
+    Args:
+        name: name of the camera
+
+    Returns: dict - camera information
+    """
     try:
         # get connection arguments from database
         ip, username, password = get_auth_by_name(name)

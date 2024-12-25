@@ -10,7 +10,6 @@ class Logger:
 
     def __init__(self, name: str, path_logs: str, log_level: str = 'INFO'):
         """
-
         Args:
             name:           name of the logger (str)
             path_logs:      path to logs directory (str)
@@ -18,7 +17,6 @@ class Logger:
 
             Uses log levels according to logging library:
             DEBUG -> INFO -> WARNING -> ERROR -> CRITICAL
-
         """
         self._path_log = f"./{path_logs}/log.log"
         self._name = name
@@ -39,13 +37,11 @@ class Logger:
 
     def get_main_logger(self):
         """
-
         Creates a main logger that formats and writes the logs
         Only one main logger should exist at a time
 
         Returns:
             Main logger object
-
         """
         # get logger
         logger = logging.getLogger(f"{self._name}")
@@ -64,12 +60,10 @@ class Logger:
 
     def get_child_logger(self):
         """
-
         Creates a module logger
 
         Returns:
             Child logger object
-
         """
         logger = logging.getLogger(f"{self._name}")
         logger.setLevel(self._log_level)

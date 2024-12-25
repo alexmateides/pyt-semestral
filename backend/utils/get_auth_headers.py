@@ -3,14 +3,12 @@ from fastapi import Request
 
 def get_auth_headers(request: Request) -> tuple:
     """
-
     retrieves authentication headers for communication with camera
 
     Args:
         request: request to API
 
     Returns: tuple(ip, username, password)
-
     """
     credentials = request.state.credentials
 

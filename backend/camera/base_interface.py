@@ -22,8 +22,6 @@ class CameraBaseInterface(ABC):
     @abstractmethod
     def get_info(self) -> dict:
         """
-
         Returns: basic camera info (ex. model_name, runtime ...)
-
         """
         pass

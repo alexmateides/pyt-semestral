@@ -12,6 +12,13 @@ router = APIRouter()
 
 @router.get("/light/{name}")
 async def get_light_status(name: str) -> JSONResponse:
+    """
+    Gets light status (ON/OFF) of a camera
+    Args:
+        name: name of the camera
+
+    Returns: Status of the light
+    """
     try:
         # extract headers
         ip, username, password = get_auth_by_name(name)
@@ -28,9 +35,15 @@ async def get_light_status(name: str) -> JSONResponse:
         return NotImplementedError('Error logging for /info currently not implemented')
 
 
-# Change camera light status on/off
 @router.post("/light/{name}")
 async def change_floodlight_status(name: str) -> JSONResponse:
+    """
+    Changes floodlight status of a camera (ON/OFF)
+    Args:
+        name: name of the camera
+
+    Returns: New light status of the camera
+    """
     try:
         # extract headers
         ip, username, password = get_auth_by_name(name)

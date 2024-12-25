@@ -24,9 +24,7 @@ main_logger = Logger(name='server_logger', path_logs=LOGS_DIR, log_level=LOG_LEV
 @app.middleware("http")
 async def api_validate(request: Request, call_next):
     """
-
     Performs API authentication
-
     """
     try:
         if request.headers.get("api-key") != API_KEY:
@@ -63,6 +61,9 @@ app.add_middleware(
 # Root get
 @app.get("/")
 async def get_root():
+    """
+    Returns: Hello World!
+    """
     try:
         main_logger.info(f'[SERVER]\t[GET]:root')
         return {"message": "Hello World!"}
