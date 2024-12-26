@@ -64,3 +64,29 @@ class Tapo320WSBaseInterface(CameraBaseInterface):
         stream_url = f"rtsp://{self.camera_username}:{self.camera_password}@{self.ip}:554/stream2"
 
         return stream_url
+
+    def get_night_vision_status(self) -> str:
+        """
+        Gets the night vision status
+
+        Returns: Night vision status
+        """
+        night_vision_status = self.tapo_interface.getDayNightMode()
+
+        return night_vision_status
+
+    def change_night_vision_status(self) -> None:
+        """
+        Changes the night vision status (on/off)
+
+        Returns: None
+        """
+        night_vision_status = self.tapo_interface.getDayNightMode()
+
+        if night_vision_status == 'off' or night_vision_status == 'auto':
+            self.tapo_interface.setDayNightMode('on')
+            return None
+
+        self.tapo_interface.setDayNightMode('off')
+
+        return None
