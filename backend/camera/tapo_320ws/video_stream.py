@@ -34,7 +34,7 @@ class RTSPStreamer:
             print(f"RTSP stream opened: {rtsp_url}")
 
             try:
-                # Keep reading frames while we have clients for this RTSP URL
+                # Keep reading frames while clients are connected
                 while len(self.clients.get(rtsp_url, [])) > 0:
                     success, frame = cap.read()
                     if not success:

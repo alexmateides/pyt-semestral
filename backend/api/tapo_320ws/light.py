@@ -3,7 +3,6 @@ from fastapi.requests import Request
 from starlette.responses import JSONResponse
 
 from backend.camera.tapo_320ws.interface import Tapo320WSBaseInterface
-from backend.camera.tapo_320ws.utils import get_auth_by_name
 from asyncio import sleep as asyncio_sleep
 
 # route /camera/info
@@ -20,11 +19,8 @@ async def get_light_status(name: str) -> JSONResponse:
     Returns: Status of the light
     """
     try:
-        # extract headers
-        ip, username, password = get_auth_by_name(name)
-
         # connect to interface
-        interface = Tapo320WSBaseInterface(ip, username, password)
+        interface = Tapo320WSBaseInterface(name)
 
         # get light status
         response = interface.get_light_status()
@@ -45,11 +41,8 @@ async def change_floodlight_status(name: str) -> JSONResponse:
     Returns: New light status of the camera
     """
     try:
-        # extract headers
-        ip, username, password = get_auth_by_name(name)
-
         # connect to interface
-        interface = Tapo320WSBaseInterface(ip, username, password)
+        interface = Tapo320WSBaseInterface(name)
 
         # change light status
         interface.change_light_status()

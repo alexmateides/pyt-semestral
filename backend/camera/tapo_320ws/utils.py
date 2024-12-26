@@ -2,7 +2,7 @@ from backend.database.sqlite_interface import SqliteInterface
 from typing import Tuple
 
 
-def get_auth_by_name(name: str) -> Tuple[str, str, str]:
+def get_auth_by_name(name: str) -> Tuple[str, str, str, str, str]:
     """
     Gets authorization for camera with name=name from SQL database
     Args:
@@ -13,12 +13,12 @@ def get_auth_by_name(name: str) -> Tuple[str, str, str]:
     interface = SqliteInterface()
     interface.cursor.execute(
         f"""
-        SELECT ip, username, password
+        SELECT ip, username, password, camera_username, camera_password
         FROM cameras
         WHERE name = ?
         """,
         (name,)
     )
-    camera = interface.cursor.fetchone()
+    row = interface.cursor.fetchone()
 
-    return camera[0], camera[1], camera[2]
+    return row[0], row[1], row[2], row[3], row[4]

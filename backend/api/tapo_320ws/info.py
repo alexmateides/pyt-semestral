@@ -2,7 +2,6 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
 from backend.camera.tapo_320ws.interface import Tapo320WSBaseInterface
-from backend.camera.tapo_320ws.utils import get_auth_by_name
 
 # route /camera/info
 router = APIRouter()
@@ -19,11 +18,8 @@ async def get_info(name: str) -> JSONResponse:
     Returns: dict - camera information
     """
     try:
-        # get connection arguments from database
-        ip, username, password = get_auth_by_name(name)
-
         # connect to interface
-        interface = Tapo320WSBaseInterface(ip, username, password)
+        interface = Tapo320WSBaseInterface(name)
 
         # retrieve info
         response = interface.get_info()

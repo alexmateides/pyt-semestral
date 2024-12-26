@@ -11,6 +11,8 @@ class Tapo320WSPydanticModel(BaseModel):
     ip: str
     username: str
     password: str
+    camera_username: str
+    camera_password: str
 
 
 # prefix /camera
@@ -26,7 +28,9 @@ CREATE TABLE IF NOT EXISTS cameras (
     model TEXT NOT NULL,
     ip TEXT NOT NULL,
     username TEXT NOT NULL,
-    password TEXT NOT NULL
+    password TEXT NOT NULL,
+    camera_username TEXT NOT NULL,
+    camera_password TEXT NOT NULL
 )
 """)
 
@@ -40,7 +44,15 @@ async def get_all_cameras() -> JSONResponse:
         sqlite_interface.cursor.execute('SELECT * FROM cameras')
         cameras = sqlite_interface.cursor.fetchall()
         camera_list = [
-            {"name": row[0], "model": row[1], "ip": row[2], "username": row[3], "password": row[4]}
+            {
+                "name": row[0],
+                "model": row[1],
+                "ip": row[2],
+                "username": row[3],
+                "password": row[4],
+                "camera_username": row[5],
+                "camera_password": row[6]
+            }
             for row in cameras
         ]
         return JSONResponse(status_code=200, content=camera_list)
@@ -67,8 +79,9 @@ async def add_or_update_camera(camera: Tapo320WSPydanticModel) -> JSONResponse:
         # Insert new camera
         if not existing_camera:
             sqlite_interface.cursor.execute("""
-                INSERT INTO cameras (name, model, ip, username, password) VALUES (?, ?, ?, ?, ?)
-            """, (camera.name, camera.model, camera.ip, camera.username, camera.password))
+                INSERT INTO cameras (name, model, ip, username, password, camera_username, camera_password) VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (camera.name, camera.model, camera.ip, camera.username, camera.password, camera.camera_username,
+                  camera.camera_password))
             sqlite_interface.connection.commit()
             return JSONResponse(status_code=200, content={"response": f"Camera {camera.name} created successfully"})
 
@@ -76,9 +89,12 @@ async def add_or_update_camera(camera: Tapo320WSPydanticModel) -> JSONResponse:
         else:
             sqlite_interface.cursor.execute("""
                 UPDATE cameras
-                SET model = ?, ip = ?, username = ?, password = ?
+                SET model = ?, ip = ?, username = ?, password = ?, camera_username = ?, camera_password = ?
                 WHERE name = ?
-            """, (camera.model, camera.ip, camera.username, camera.password, camera.name))
+            """, (
+                camera.model, camera.ip, camera.username, camera.password, camera.camera_username,
+                camera.camera_password,
+                camera.name))
             sqlite_interface.connection.commit()
             return JSONResponse(status_code=200, content={"response": f"Camera {camera.name} updated successfully"})
 
@@ -134,6 +150,8 @@ async def get_camera_by_name(name: str) -> JSONResponse:
             "ip": camera[2],
             "username": camera[3],
             "password": camera[4],
+            "camera_username": camera[5],
+            "camera_password": camera[6]
         })
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error retrieving camera: {error}")

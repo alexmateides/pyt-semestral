@@ -1,4 +1,5 @@
 from backend.camera.base_interface import CameraBaseInterface
+from backend.camera.tapo_320ws.utils import get_auth_by_name
 from pytapo import Tapo
 
 
@@ -8,7 +9,18 @@ class Tapo320WSBaseInterface(CameraBaseInterface):
     This implementation uses pytapo library for camera API access
     """
 
-    def __init__(self, ip: str, username: str, password: str):
+    def __init__(self, name: str):
+        self.name = name
+
+        # get auth
+        ip, username, password, camera_username, camera_password = get_auth_by_name(name)
+
+        self.ip = ip
+        self.username = username
+        self.password = password
+        self.camera_username = camera_username
+        self.camera_password = camera_password
+
         super().__init__(ip, username, password)
         self.tapo_interface = Tapo(host=self.ip, user=self.username, password=self.password)
 
@@ -49,7 +61,6 @@ class Tapo320WSBaseInterface(CameraBaseInterface):
 
         Returns: stream URL
         """
+        stream_url = f"rtsp://{self.camera_username}:{self.camera_password}@{self.ip}:554/stream2"
 
-        stream_url = self.tapo_interface.getStreamURL()
-
-        return f"rtsp://admin1:admin1@192.168.0.152:554/stream1"
+        return stream_url

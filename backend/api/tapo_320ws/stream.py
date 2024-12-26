@@ -2,7 +2,6 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
 
 from backend.camera.tapo_320ws.interface import Tapo320WSBaseInterface
-from backend.camera.tapo_320ws.utils import get_auth_by_name
 from backend.camera.tapo_320ws.video_stream import RTSPStreamer
 
 # route /camera/stream
@@ -39,8 +38,7 @@ async def websocket_stream(websocket: WebSocket, name: str):
 
     try:
         # Retrieve the RTSP URL for the given camera name
-        ip, username, password = get_auth_by_name(name)  # Custom logic to get camera credentials
-        interface = Tapo320WSBaseInterface(ip, username, password)
+        interface = Tapo320WSBaseInterface(name)
         rtsp_url = interface.get_stream_url()
 
         print(rtsp_url)
