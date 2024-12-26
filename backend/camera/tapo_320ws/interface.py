@@ -61,7 +61,7 @@ class Tapo320WSBaseInterface(CameraBaseInterface):
 
         Returns: stream URL
         """
-        stream_url = f"rtsp://{self.camera_username}:{self.camera_password}@{self.ip}:554/stream2"
+        stream_url = f"rtsp://{self.camera_username}:{self.camera_password}@{self.ip}:554/stream1"
 
         return stream_url
 
@@ -90,3 +90,24 @@ class Tapo320WSBaseInterface(CameraBaseInterface):
         self.tapo_interface.setDayNightMode('off')
 
         return None
+
+    def get_time_correction(self) -> str:
+        """
+        Gets the time correction
+        Returns: Time correction
+        """
+        time_correction = self.tapo_interface.getTimeCorrection()
+
+        return time_correction
+
+    def get_recordings(self, date: str):
+        """
+        Returns a list of recordings for a given date
+        Args:
+            date: YYYYMMDD string format
+
+        Returns: List of recordings
+        """
+        recordings = self.tapo_interface.getRecordings(date)
+
+        return recordings
