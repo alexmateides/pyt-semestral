@@ -1,5 +1,9 @@
-from backend.database.sqlite_interface import SqliteInterface
+"""
+Utility function for Tapo320WS cameras
+"""
 from typing import Tuple, List
+import sqlite3
+from backend.database.sqlite_interface import SqliteInterface
 
 
 def get_auth_by_name(name: str) -> Tuple[str, str, str, str, str]:
@@ -10,37 +14,45 @@ def get_auth_by_name(name: str) -> Tuple[str, str, str, str, str]:
 
     Returns: Tuple[ip, username, password]
     """
-    interface = SqliteInterface()
-    interface.cursor.execute(
-        f"""
-        SELECT ip, username, password, camera_username, camera_password
-        FROM cameras
-        WHERE name = ?
-        """,
-        (name,)
-    )
-    row = interface.cursor.fetchone()
+    try:
+        interface = SqliteInterface()
+        interface.cursor.execute(
+            """
+            SELECT ip, username, password, camera_username, camera_password
+            FROM cameras
+            WHERE name = ?
+            """,
+            (name,)
+        )
+        row = interface.cursor.fetchone()
 
-    return row[0], row[1], row[2], row[3], row[4]
+        return row[0], row[1], row[2], row[3], row[4]
+
+    except sqlite3.Error as error:
+        raise error
 
 
 def list_tapo_320ws_camera_names() -> List:
     """
     Returns: list of dicts containing camera info
     """
-    interface = SqliteInterface()
-    interface.cursor.execute(
-        """
-        SELECT * FROM cameras
-        WHERE model="tapo_320ws"
-        """
-    )
+    try:
+        interface = SqliteInterface()
+        interface.cursor.execute(
+            """
+            SELECT * FROM cameras
+            WHERE model="tapo_320ws"
+            """
+        )
 
-    rows = interface.cursor.fetchall()
+        rows = interface.cursor.fetchall()
 
-    result_names = []
+        result_names = []
 
-    for row in rows:
-        result_names.append(row[0])
+        for row in rows:
+            result_names.append(row[0])
 
-    return result_names
+        return result_names
+
+    except sqlite3.Error as error:
+        raise error

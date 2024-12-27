@@ -1,3 +1,6 @@
+"""
+Get authorization headers for a user helper
+"""
 from fastapi import Request
 
 

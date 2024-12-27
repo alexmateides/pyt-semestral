@@ -1,3 +1,6 @@
+"""
+Driver code for the uvicorn server
+"""
 import uvicorn
 from backend.server.server import app
 

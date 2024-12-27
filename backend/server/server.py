@@ -1,10 +1,12 @@
+"""
+Implementation of uvicorn server
+"""
 import asyncio
-
+import os
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-import os
 from backend.logger import Logger
 from backend.api.alive import router as alive_router
 from backend.api.tapo_320ws import router as tapo_320ws_router
@@ -14,14 +16,15 @@ from backend.utils.movement_listener import movement_listener
 API_KEY = 'TEST'
 
 
-async def lifespan(app: FastAPI):
+async def lifespan(server_app: FastAPI):
     """
     FastAPI lifespan manager to run movement_listener for the whole duration
     Args:
-        app:
+        server_app:
 
     Returns:
     """
+    server_app.get("/alive")
     # Create a task to run the listener in the background
     task = asyncio.create_task(movement_listener())
 
@@ -45,24 +48,33 @@ LOGS_DIR = os.path.join(BASE_DIR, '../..', 'logs')
 main_logger = Logger(name='server_logger', path_logs=LOGS_DIR, log_level=LOG_LEVEL).get_main_logger()
 
 
+@app.middleware("http")
+async def catch_all(request: Request, call_next):
+    """
+    Prevents the server from crashing on unexpected exceptions
+    """
+    try:
+        response = await call_next(request)
+        return response
+    except Exception as error:
+        main_logger.exception(error)
+
+
 # API Access
 @app.middleware("http")
 async def api_validate(request: Request, call_next):
     """
     Performs API authentication
     """
-    try:
-        if request.scope["type"] == "websocket":
-            return await call_next(request)
+    if request.scope["type"] == "websocket":
+        return await call_next(request)
 
-        if request.headers.get("api-key") != API_KEY:
-            main_logger.info(f'[SERVER]\tWrong API key {request.headers}')
-            return JSONResponse(status_code=401, content={"message": "Unauthorized"})
+    if request.headers.get("api-key") != API_KEY:
+        main_logger.info("[SERVER]\tWrong API key")
+        return JSONResponse(status_code=401, content={"message": "Unauthorized"})
 
-        response = await call_next(request)
-        return response
-    except Exception as error:
-        main_logger.error(f'[SERVER]\tAPI verification ERROR {error}')
+    response = await call_next(request)
+    return response
 
 
 # include api routes
@@ -92,11 +104,8 @@ async def get_root():
     """
     Returns: Hello World!
     """
-    try:
-        main_logger.info(f'[SERVER]\t[GET]:root')
-        return {"message": "Hello World!"}
-    except Exception as error:
-        main_logger.error(f'[SERVER]\t[GET]: root ERROR')
+    main_logger.info("[SERVER]\t[GET]:root")
+    return {"message": "Hello World!"}
 
 
 # For testing

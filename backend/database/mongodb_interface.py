@@ -1,5 +1,8 @@
-from pymongo import MongoClient
+"""
+Interface for MongoDB database, currently not used
+"""
 import os
+from pymongo import MongoClient
 from dotenv import load_dotenv, find_dotenv
 
 

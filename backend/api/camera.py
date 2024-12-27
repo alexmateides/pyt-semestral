@@ -1,3 +1,8 @@
+"""
+API interface for adding/modifying/deleting cameras in internal database
+"""
+import sqlite3
+
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -6,6 +11,9 @@ from backend.database.sqlite_interface import SqliteInterface
 
 # pydantic model for Camera
 class Tapo320WSPydanticModel(BaseModel):
+    """
+    Pydantic model for specifying query model body
+    """
     name: str
     model: str
     ip: str
@@ -56,8 +64,8 @@ async def get_all_cameras() -> JSONResponse:
             for row in cameras
         ]
         return JSONResponse(status_code=200, content=camera_list)
-    except Exception as error:
-        raise HTTPException(status_code=500, detail=f"Error retrieving cameras: {error}")
+    except sqlite3.Error as error:
+        raise HTTPException(status_code=500, detail=f'Error retrieving cameras: {error}') from error
 
 
 @router.post("/")
@@ -86,20 +94,19 @@ async def add_or_update_camera(camera: Tapo320WSPydanticModel) -> JSONResponse:
             return JSONResponse(status_code=200, content={"response": f"Camera {camera.name} created successfully"})
 
         # Update existing camera
-        else:
-            sqlite_interface.cursor.execute("""
-                UPDATE cameras
-                SET model = ?, ip = ?, username = ?, password = ?, camera_username = ?, camera_password = ?
-                WHERE name = ?
-            """, (
-                camera.model, camera.ip, camera.username, camera.password, camera.camera_username,
-                camera.camera_password,
-                camera.name))
-            sqlite_interface.connection.commit()
-            return JSONResponse(status_code=200, content={"response": f"Camera {camera.name} updated successfully"})
+        sqlite_interface.cursor.execute("""
+            UPDATE cameras
+            SET model = ?, ip = ?, username = ?, password = ?, camera_username = ?, camera_password = ?
+            WHERE name = ?
+        """, (
+            camera.model, camera.ip, camera.username, camera.password, camera.camera_username,
+            camera.camera_password,
+            camera.name))
+        sqlite_interface.connection.commit()
+        return JSONResponse(status_code=200, content={"response": f"Camera {camera.name} updated successfully"})
 
-    except Exception as error:
-        raise HTTPException(status_code=500, detail=f"Error adding or updating camera: {error}")
+    except sqlite3.Error as error:
+        raise HTTPException(status_code=500, detail=f"Error adding or updating camera: {error}") from error
 
 
 @router.delete("/")
@@ -123,8 +130,9 @@ async def delete_camera(name: str) -> JSONResponse:
         sqlite_interface.connection.commit()
 
         return JSONResponse(status_code=200, content={"response": f"Camera {name} deleted successfully"})
-    except Exception as error:
-        raise HTTPException(status_code=500, detail=f"Error deleting camera: {error}")
+
+    except sqlite3.Error as error:
+        raise HTTPException(status_code=500, detail=f"Error deleting camera: {error}") from error
 
 
 @router.get("/{name}")
@@ -153,5 +161,6 @@ async def get_camera_by_name(name: str) -> JSONResponse:
             "camera_username": camera[5],
             "camera_password": camera[6]
         })
-    except Exception as error:
-        raise HTTPException(status_code=500, detail=f"Error retrieving camera: {error}")
+
+    except sqlite3.Error as error:
+        raise HTTPException(status_code=500, detail=f"Error retrieving camera: {error}") from error

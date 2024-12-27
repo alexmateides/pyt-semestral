@@ -1,3 +1,6 @@
+"""
+Custom logger class using python logging library
+"""
 import logging
 from logging.handlers import TimedRotatingFileHandler
 import logging.config

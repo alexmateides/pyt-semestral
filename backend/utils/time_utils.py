@@ -1,3 +1,6 @@
+"""
+Time utility functions
+"""
 from datetime import datetime, timedelta
 from typing import List
 

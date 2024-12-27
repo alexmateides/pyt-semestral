@@ -1,3 +1,6 @@
+"""
+Utility functions for time
+"""
 import asyncio
 from typing import List
 from backend.camera.tapo_320ws.utils import list_tapo_320ws_camera_names

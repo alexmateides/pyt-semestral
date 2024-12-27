@@ -1,3 +1,6 @@
+"""
+API endpoint for getting camera information
+"""
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
@@ -17,14 +20,10 @@ async def get_info(name: str) -> JSONResponse:
 
     Returns: dict - camera information
     """
-    try:
-        # connect to interface
-        interface = Tapo320WSBaseInterface(name)
+    # connect to interface
+    interface = Tapo320WSBaseInterface(name)
 
-        # retrieve info
-        response = interface.get_info()
+    # retrieve info
+    response = interface.get_info()
 
-        return JSONResponse(status_code=200, content=response)
-
-    except Exception as error:
-        return NotImplementedError('Error logging for /info currently not implemented')
+    return JSONResponse(status_code=200, content=response)

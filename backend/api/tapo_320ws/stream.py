@@ -1,6 +1,8 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+"""
+API endpoint for opening camera stream websocket
+"""
+from fastapi import APIRouter, WebSocket, WebSocketException
 from fastapi.responses import JSONResponse
-
 from backend.camera.tapo_320ws.interface import Tapo320WSBaseInterface
 from backend.camera.tapo_320ws.video_stream import RTSPStreamer
 
@@ -18,12 +20,9 @@ async def get_stream_url(name: str) -> JSONResponse:
         name: name of the camera
     Returns: dict with WebSocket URL
     """
-    try:
-        # Generate the WebSocket URL for the client
-        ws_url = f"ws://localhost:8000/tapo-320ws/stream/ws/{name}"
-        return JSONResponse(status_code=200, content={"streamUrl": ws_url})
-    except Exception as error:
-        return JSONResponse(status_code=500, content={"error": str(error)})
+    # Generate the WebSocket URL for the client
+    ws_url = f"ws://localhost:8000/tapo-320ws/stream/ws/{name}"
+    return JSONResponse(status_code=200, content={"streamUrl": ws_url})
 
 
 @router.websocket("/stream/ws/{name}")
@@ -34,9 +33,9 @@ async def websocket_stream(websocket: WebSocket, name: str):
         websocket: WebSocket connection
         name: name of the camera
     """
-    await websocket.accept()
-
     try:
+        await websocket.accept()
+
         # Retrieve the RTSP URL for the given camera name
         interface = Tapo320WSBaseInterface(name)
         rtsp_url = interface.get_stream_url()
@@ -50,10 +49,7 @@ async def websocket_stream(websocket: WebSocket, name: str):
         while True:
             await websocket.receive_text()
 
-    except WebSocketDisconnect:
+    except WebSocketException as error:
         # Remove the client from the RTSPStreamer
         streamer.remove_client(rtsp_url, websocket)
-
-    except Exception as error:
-        print(f"Error: {error}")
-        await websocket.close()
+        return JSONResponse(status_code=500, content={f"WebSocket Error:\t{error}"})

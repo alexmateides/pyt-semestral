@@ -1,3 +1,6 @@
+"""
+Base camera interface for potential new camera models
+"""
 from abc import ABC, abstractmethod
 
 
@@ -24,4 +27,8 @@ class CameraBaseInterface(ABC):
         """
         Returns: basic camera info (ex. model_name, runtime ...)
         """
-        pass
+
+    def get_capabilities(self) -> dict:
+        """
+        Returns: basic camera capabilities
+        """

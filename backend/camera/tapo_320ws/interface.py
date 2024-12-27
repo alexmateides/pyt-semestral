@@ -1,3 +1,6 @@
+"""
+Tapo camera interface
+"""
 from pytapo import Tapo
 from backend.camera.base_interface import CameraBaseInterface
 from backend.camera.tapo_320ws.utils import get_auth_by_name
@@ -35,6 +38,20 @@ class Tapo320WSBaseInterface(CameraBaseInterface):
 
         return basic_info
 
+    def get_capabilities(self) -> dict:
+        """
+        Returns: capabilities of the Tapo camera
+        """
+        capabilities = {
+            "video": self.tapo_interface.getVideoCapability(),
+            "night_vision": self.tapo_interface.getNightVisionCapability(),
+            "floodlight": self.tapo_interface.getFloodlightCapability(),
+            "pir_det": self.tapo_interface.getPirDetCapability(),
+            "motor": self.tapo_interface.getMotorCapability()
+        }
+
+        return capabilities
+
     def get_light_status(self) -> dict:
         """
         Gets the floodlight status
@@ -54,8 +71,6 @@ class Tapo320WSBaseInterface(CameraBaseInterface):
         """
 
         self.tapo_interface.reverseWhitelampStatus()
-
-        return None
 
     def get_stream_url(self) -> str:
         """
@@ -85,7 +100,7 @@ class Tapo320WSBaseInterface(CameraBaseInterface):
         """
         night_vision_status = self.tapo_interface.getDayNightMode()
 
-        if night_vision_status == 'off' or night_vision_status == 'auto':
+        if night_vision_status in ('off', 'auto'):
             self.tapo_interface.setDayNightMode('on')
             return None
 
@@ -123,14 +138,3 @@ class Tapo320WSBaseInterface(CameraBaseInterface):
         events = self.tapo_interface.getEvents(startTime=timestamp)
 
         return events
-
-
-if __name__ == '__main__':
-    interface = Tapo320WSBaseInterface('Ondřej Bouchala')
-    from backend.utils.time_utils import timestamp_to_string
-
-    events = interface.get_events()[0]
-
-    events['recent'] = events['startRelative'] <= 60
-
-    print(events)

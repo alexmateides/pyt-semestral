@@ -1,9 +1,8 @@
-#
-#   Updated code from the pytapo library, since it's experimental
-#   Credit to respective authors at https://github.com/JurajNyiri/pytapo
-#   Original is licensed under MIT License
-#
-from pytapo import Tapo
+"""
+Updated code from the pytapo library, since it's experimental and not fully functional
+Credit to respective authors at https://github.com/JurajNyiri/pytapo
+Original is licensed under MIT License
+"""
 from datetime import datetime, timedelta
 from json import JSONDecodeError
 import json
@@ -13,14 +12,19 @@ import io
 import subprocess
 import os
 import tempfile
-import aiofiles
 from typing import List
+import aiofiles
+from pytapo import Tapo
 
 logger = logging.getLogger(__name__)
 logging.getLogger("libav").setLevel(logging.ERROR)
 
 
 class Convert:
+    """
+    Pytapo class for video conversion using ffmpeg
+    """
+
     def __init__(self):
         self.stream = None
         self.writer = io.BytesIO()
@@ -31,30 +35,35 @@ class Convert:
 
     # cuts and saves the video
     async def save(self, fileLocation, fileLength, method="ffmpeg"):
+        """
+        Save video using ffmpeg (pytapo)
+        """
         if method == "ffmpeg":
-            tempVideoFileLocation = fileLocation + ".ts"
+            tempVideoFileLocation = f"{fileLocation}.ts"
             async with aiofiles.open(tempVideoFileLocation, "wb") as file:
                 await file.write(self.writer.getvalue())
-            tempAudioFileLocation = fileLocation + ".alaw"
+            tempAudioFileLocation = f"{fileLocation}.alaw"
             async with aiofiles.open(tempAudioFileLocation, "wb") as file:
                 await file.write(self.audioWriter.getvalue())
 
-            cmd = 'ffmpeg -ss 00:00:00 -i "{inputVideoFile}" -f alaw -ar 8000 -i "{inputAudioFile}" -t {videoLength} -y -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 "{outputFile}" >{devnull} 2>&1'.format(
-                inputVideoFile=tempVideoFileLocation,
-                inputAudioFile=tempAudioFileLocation,
-                outputFile=fileLocation,
-                videoLength=str(timedelta(seconds=fileLength)),
-                devnull=os.devnull,
-            )
+            inputVideoFile = tempVideoFileLocation
+            inputAudioFile = tempAudioFileLocation
+            outputFile = fileLocation
+            videoLength = str(timedelta(seconds=fileLength))
+            devnull = os.devnull
+            cmd = f'ffmpeg -ss 00:00:00 -i "{inputVideoFile}" -f alaw -ar 8000 -i "{inputAudioFile}" -t {videoLength} -y -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 "{outputFile}" >{devnull} 2>&1'
             os.system(cmd)
 
             os.remove(tempVideoFileLocation)
             os.remove(tempAudioFileLocation)
         else:
-            raise Exception("Method not supported")
+            raise NotImplementedError("Method not supported")
 
     # calculates ideal refresh interval for a real time estimate of downloaded data
     def getRefreshIntervalForLengthEstimate(self):
+        """
+        Pytapo
+        """
         if self.addedChunks < 100:
             return 50
         elif self.addedChunks < 1000:
@@ -66,6 +75,9 @@ class Convert:
 
     # calculates real stream length, hard on processing since it has to go through all the frames
     def calculateLength(self):
+        """
+        Pytapo
+        """
         detectedLength = False
         try:
             with tempfile.NamedTemporaryFile(delete=False) as tmp:
@@ -98,12 +110,15 @@ class Convert:
                 self.lengthLastCalculatedAtChunk = self.addedChunks
             os.unlink(tmp.name)
 
-        except Exception as error:
+        except (FileNotFoundError, subprocess.SubprocessError, ValueError, OSError) as error:
             raise error
         return detectedLength
 
     # returns length of video, can return an estimate which is usually very close
     def getLength(self, exact=False):
+        """
+        Pytapo
+        """
         if bool(self.known_lengths) is True:
             lastKnownChunk = list(self.known_lengths)[-1]
             lastKnownLength = self.known_lengths[lastKnownChunk]
@@ -128,11 +143,17 @@ class Convert:
         return False
 
     def write(self, data: bytes, audioData: bytes):
+        """
+        Pytapo
+        """
         self.addedChunks += 1
         return self.writer.write(data) and self.audioWriter.write(audioData)
 
 
 class Downloader:
+    """
+    Pytapo
+    """
     FRESH_RECORDING_TIME_SECONDS = 60
 
     def __init__(
@@ -166,6 +187,9 @@ class Downloader:
             self.window_size = int(window_size)
 
     async def md5(self, fileName):
+        """
+        Pytapo
+        """
         if os.path.isfile(fileName):
             async with aiofiles.open(fileName, "rb") as file:
                 contents = await file.read()
@@ -173,6 +197,9 @@ class Downloader:
         return False
 
     async def downloadFile(self, callbackFunc=None):
+        """
+        Pytapo
+        """
         if callbackFunc is not None:
             callbackFunc("Starting download")
         async for status in self.download():
@@ -189,6 +216,9 @@ class Downloader:
         return status
 
     async def download(self, retry=False):
+        """
+        Pytapo
+        """
         downloading = True
         while downloading:
             dateStart = datetime.fromtimestamp(int(self.startTime)).strftime(
@@ -318,7 +348,7 @@ class Downloader:
                                     await convert.save(fileName, convert.getLength())
                                     downloading = False
                                     break
-                            except JSONDecodeError:
+                            except (KeyError, JSONDecodeError, AttributeError, ConnectionError, TypeError):
                                 self.tapo.debugLog(
                                     "Unable to parse JSON sent from device"
                                 )
@@ -359,6 +389,13 @@ class Downloader:
 
 
 async def download_async(interface, date: str, recording_id_list: List[str]):
+    """
+    Own downloader implementation
+    Args:
+        interface:              pytapo interface
+        date:                   date of the recordings
+        recording_id_list:      recording ids
+    """
     # navigate to /recordings
     output_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
     output_dir = os.path.join(output_dir, 'recordings')
