@@ -25,6 +25,7 @@ def iter_dates(start_date: str, end_date: str) -> List[str]:
 
     return results
 
+
 def timestamp_to_string(timestamp: int) -> str:
     """
     Converts timestamp to human-readable string
@@ -35,3 +36,10 @@ def timestamp_to_string(timestamp: int) -> str:
     Returns: string in HH:MM:SS format
     """
     return datetime.fromtimestamp(timestamp).strftime("%H:%M:%S")
+
+
+def minute_ago() -> int:
+    """
+    Returns: timestamp from minute ago
+    """
+    return int(datetime.timestamp(datetime.now() - timedelta(minutes=1)))

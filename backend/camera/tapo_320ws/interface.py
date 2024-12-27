@@ -1,6 +1,7 @@
+from pytapo import Tapo
 from backend.camera.base_interface import CameraBaseInterface
 from backend.camera.tapo_320ws.utils import get_auth_by_name
-from pytapo import Tapo
+from backend.utils.time_utils import minute_ago
 
 
 class Tapo320WSBaseInterface(CameraBaseInterface):
@@ -111,3 +112,23 @@ class Tapo320WSBaseInterface(CameraBaseInterface):
         recordings = self.tapo_interface.getRecordings(date)
 
         return recordings
+
+    def get_events(self):
+        """
+        Used for movement detection
+        Returns: events
+        """
+        timestamp = minute_ago()
+        events = self.tapo_interface.getEvents(startTime=timestamp)
+
+        return events
+
+if __name__ == '__main__':
+    interface = Tapo320WSBaseInterface('Ondřej Bouchala')
+    from backend.utils.time_utils import timestamp_to_string
+
+    events = interface.get_events()[0]
+
+    events['recent'] = events['startRelative'] <= 60
+
+    print(events)

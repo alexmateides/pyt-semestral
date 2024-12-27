@@ -1,17 +1,42 @@
+import asyncio
+
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from backend.logger import Logger
-
 from backend.api.alive import router as alive_router
 from backend.api.tapo_320ws import router as tapo_320ws_router
 from backend.api.camera import router as camera_router
+from backend.utils.movement_listener import movement_listener
 
 API_KEY = 'TEST'
 
-app = FastAPI()
+
+async def lifespan(app: FastAPI):
+    """
+    FastAPI lifespan manager to run movement_listener for the whole duration
+    Args:
+        app:
+
+    Returns:
+    """
+    # Create a task to run the listener in the background
+    task = asyncio.create_task(movement_listener())
+
+    # Yield control to start the application
+    yield
+
+    # Clean up tasks when shutting down
+    task.cancel()
+    try:
+        await task
+    except asyncio.CancelledError:
+        print("Listener task cancelled")
+
+
+app = FastAPI(lifespan=lifespan)
 
 # set logger
 LOG_LEVEL = 'DEBUG'
