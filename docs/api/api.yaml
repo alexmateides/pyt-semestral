@@ -1,0 +1,232 @@
+openapi: 3.0.1
+info:
+  title: Tapo 320WS API
+  description: API documentation for the Tapo 320WS endpoints and camera management.
+  version: "1.0.0"
+servers:
+  - url: http://localhost:8000
+    description: Local server
+paths:
+  /tapo-320ws/info/{name}:
+    get:
+      summary: Retrieve camera info
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: Name of the camera
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Camera information retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+  /tapo-320ws/light/{name}:
+    get:
+      summary: Get light status
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: Name of the camera
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Light status retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+    post:
+      summary: Change light status
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: Name of the camera
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Light status updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+  /tapo-320ws/night/{name}:
+    get:
+      summary: Get night-vision status
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: Name of the camera
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Night-vision status retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+    post:
+      summary: Change night-vision status
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: Name of the camera
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Night-vision status updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+  /tapo-320ws/recordings/{name}:
+    get:
+      summary: Get recordings
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: Name of the camera
+          schema:
+            type: string
+        - name: start_date
+          in: query
+          required: true
+          description: Start date (YYYY-MM-DD)
+          schema:
+            type: string
+        - name: end_date
+          in: query
+          required: true
+          description: End date (YYYY-MM-DD)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Recordings retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+    post:
+      summary: Download recordings
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: Name of the camera
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date:
+                  type: string
+                  description: Recording date (YYYY-MM-DD)
+                id_list:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: Recordings downloaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+  /tapo-320ws/stream/{name}:
+    get:
+      summary: Get stream WebSocket URL
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: Name of the camera
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Stream URL retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  streamUrl:
+                    type: string
+                    description: WebSocket URL for streaming
+  /camera:
+    get:
+      summary: Get all cameras
+      responses:
+        "200":
+          description: List of cameras retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+    post:
+      summary: Add or update camera
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                model:
+                  type: string
+                ip:
+                  type: string
+                username:
+                  type: string
+                password:
+                  type: string
+                camera_username:
+                  type: string
+                camera_password:
+                  type: string
+      responses:
+        "200":
+          description: Camera added or updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+    delete:
+      summary: Delete camera
+      parameters:
+        - name: name
+          in: query
+          required: true
+          description: Name of the camera to delete
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Camera deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
