@@ -386,10 +386,10 @@ async def download_async(interface, date: str, recording_id_list: List[str]):
                 statusString = status["currentAction"] + " " + status["fileName"]
                 if status["progress"] > 0:
                     statusString += (
-                        ": "
-                        + str(round(status["progress"], 2))
-                        + " / "
-                        + str(status["total"])
+                            ": "
+                            + str(round(status["progress"], 2))
+                            + " / "
+                            + str(status["total"])
                     )
                 else:
                     statusString += "..."

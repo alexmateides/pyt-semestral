@@ -2,10 +2,12 @@ import sqlite3
 import os
 from dotenv import load_dotenv, find_dotenv
 
+
 class SqliteInterface:
     """
     SQLite interface - simplifies connecting to database path
     """
+
     def __init__(self):
         load_dotenv(find_dotenv())
         database_dir = os.path.dirname(os.path.abspath(__file__))

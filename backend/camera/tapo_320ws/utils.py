@@ -2,7 +2,6 @@ from backend.database.sqlite_interface import SqliteInterface
 from typing import Tuple, List
 
 
-
 def get_auth_by_name(name: str) -> Tuple[str, str, str, str, str]:
     """
     Gets authorization for camera with name=name from SQL database
@@ -23,6 +22,7 @@ def get_auth_by_name(name: str) -> Tuple[str, str, str, str, str]:
     row = interface.cursor.fetchone()
 
     return row[0], row[1], row[2], row[3], row[4]
+
 
 def list_tapo_320ws_camera_names() -> List:
     """

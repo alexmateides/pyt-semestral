@@ -2,6 +2,7 @@ from backend.camera.tapo_320ws.interface import Tapo320WSBaseInterface
 from backend.utils.time_utils import timestamp_to_string
 from typing import Tuple, List
 
+
 def get_alarm_status(name: str) -> Tuple[bool, List[dict]]:
     """
     Gets alarm status for camera with name=name from SQL database

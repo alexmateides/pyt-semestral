@@ -23,7 +23,8 @@ class Tapo320WSBaseInterface(CameraBaseInterface):
         self.camera_password = camera_password
 
         super().__init__(ip, username, password)
-        self.tapo_interface = Tapo(host=self.ip, user=self.username, password=self.password, cloudPassword=self.password)
+        self.tapo_interface = Tapo(host=self.ip, user=self.username, password=self.password,
+                                   cloudPassword=self.password)
 
     def get_info(self) -> dict:
         """
@@ -122,6 +123,7 @@ class Tapo320WSBaseInterface(CameraBaseInterface):
         events = self.tapo_interface.getEvents(startTime=timestamp)
 
         return events
+
 
 if __name__ == '__main__':
     interface = Tapo320WSBaseInterface('Ondřej Bouchala')

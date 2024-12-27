@@ -1,5 +1,5 @@
 import uvicorn
-from server.server import app
+from backend.server.server import app
 
 # Run the server
 if __name__ == "__main__":
