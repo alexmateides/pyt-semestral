@@ -1,14 +1,28 @@
 openapi: 3.0.1
 info:
   title: Tapo 320WS API
-  description: API documentation for the Tapo 320WS endpoints and camera management.
+  description: API documentation for the Tapo 320WS endpoints, camera management, and utility endpoints.
   version: "1.0.0"
 servers:
   - url: http://localhost:8000
     description: Local server
 paths:
+  /alive:
+    get:
+      tags:
+        - Utilities
+      summary: Alive ping for checking server health
+      responses:
+        "200":
+          description: Server is alive
+          content:
+            application/json:
+              schema:
+                type: string
   /tapo-320ws/info/{name}:
     get:
+      tags:
+        - Tapo320WS
       summary: Retrieve camera info
       parameters:
         - name: name
@@ -26,6 +40,8 @@ paths:
                 type: object
   /tapo-320ws/light/{name}:
     get:
+      tags:
+        - Tapo320WS
       summary: Get light status
       parameters:
         - name: name
@@ -42,6 +58,8 @@ paths:
               schema:
                 type: object
     post:
+      tags:
+        - Tapo320WS
       summary: Change light status
       parameters:
         - name: name
@@ -59,6 +77,8 @@ paths:
                 type: object
   /tapo-320ws/night/{name}:
     get:
+      tags:
+        - Tapo320WS
       summary: Get night-vision status
       parameters:
         - name: name
@@ -75,6 +95,8 @@ paths:
               schema:
                 type: object
     post:
+      tags:
+        - Tapo320WS
       summary: Change night-vision status
       parameters:
         - name: name
@@ -92,6 +114,8 @@ paths:
                 type: object
   /tapo-320ws/recordings/{name}:
     get:
+      tags:
+        - Tapo320WS
       summary: Get recordings
       parameters:
         - name: name
@@ -122,6 +146,8 @@ paths:
                 items:
                   type: object
     post:
+      tags:
+        - Tapo320WS
       summary: Download recordings
       parameters:
         - name: name
@@ -153,6 +179,8 @@ paths:
                 type: object
   /tapo-320ws/stream/{name}:
     get:
+      tags:
+        - Tapo320WS
       summary: Get stream WebSocket URL
       parameters:
         - name: name
@@ -174,6 +202,8 @@ paths:
                     description: WebSocket URL for streaming
   /camera:
     get:
+      tags:
+        - Camera
       summary: Get all cameras
       responses:
         "200":
@@ -185,6 +215,8 @@ paths:
                 items:
                   type: object
     post:
+      tags:
+        - Camera
       summary: Add or update camera
       requestBody:
         required: true
@@ -215,6 +247,8 @@ paths:
               schema:
                 type: object
     delete:
+      tags:
+        - Camera
       summary: Delete camera
       parameters:
         - name: name
