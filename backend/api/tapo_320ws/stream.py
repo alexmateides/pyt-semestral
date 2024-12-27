@@ -5,10 +5,12 @@ from fastapi import APIRouter, WebSocket, WebSocketException, WebSocketDisconnec
 from fastapi.responses import JSONResponse
 from backend.camera.tapo_320ws.interface import Tapo320WSBaseInterface
 from backend.camera.tapo_320ws.video_stream import RTSPStreamer
+from backend.logger import Logger
 
 # route /camera/stream
 router = APIRouter()
 streamer = RTSPStreamer()
+logger = Logger('api/tapo_320ws/stream').get_child_logger()
 
 
 # Retrieve camera info
@@ -22,6 +24,9 @@ async def get_stream_url(name: str) -> JSONResponse:
     """
     # Generate the WebSocket URL for the client
     ws_url = f"ws://localhost:8000/tapo-320ws/stream/ws/{name}"
+
+    logger.info('[GET][/tapo-w320s/stream] %s', name)
+
     return JSONResponse(status_code=200, content={"streamUrl": ws_url})
 
 
@@ -34,6 +39,7 @@ async def websocket_stream(websocket: WebSocket, name: str):
         name: name of the camera
     """
     try:
+        logger.info('[WEBSOCKET][/tapo-w320s/stream] %s', name)
         await websocket.accept()
 
         # retrieve RTSP URL for camera name
@@ -50,9 +56,11 @@ async def websocket_stream(websocket: WebSocket, name: str):
             await websocket.receive_text()
 
     except WebSocketDisconnect as disconnect_error:
-        print(f"Client disconnected: {disconnect_error.code}, {disconnect_error.reason}")
+        logger.info('[WEBSOCKET][/tapo-w320s/stream] %s - client dicsonnected: %s, %s', name, disconnect_error.code,
+                    disconnect_error.reason)
 
     except WebSocketException as error:
         # remove client from the RTSPStreamer
+        logger.error('[WEBSOCKET][/tapo-w320s/stream] %s = "WebSocket Error: %s ', name, error)
         streamer.remove_client(rtsp_url, websocket)
         return JSONResponse(status_code=500, content={f"WebSocket Error:\t{error}"})

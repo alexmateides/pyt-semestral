@@ -6,7 +6,9 @@ import base64
 import threading
 from typing import Dict, List
 import cv2
+from backend.logger import Logger
 
+logger = Logger('video_stream').get_child_logger()
 
 class RTSPStreamer:
     """
@@ -24,7 +26,7 @@ class RTSPStreamer:
             self.clients[rtsp_url] = []
         self.clients[rtsp_url].append(websocket)
 
-        print(f"Added client to stream {rtsp_url}. Total clients: {len(self.clients[rtsp_url])}")
+        logger.info("Added client to stream %s. Total clients: %s", rtsp_url, len(self.clients[rtsp_url]))
 
         # if not already streaming, start
         if rtsp_url not in self.streams:
@@ -35,10 +37,7 @@ class RTSPStreamer:
         if rtsp_url in self.clients:
             if websocket in self.clients[rtsp_url]:
                 self.clients[rtsp_url].remove(websocket)
-                print(
-                    f"Removed client from stream {rtsp_url}. "
-                    f"Remaining clients: {len(self.clients[rtsp_url])}"
-                )
+                logger.info("Removed client from stream %s; remaining clients: %s", rtsp_url, len(self.clients[rtsp_url]))
             if len(self.clients[rtsp_url]) == 0:
                 # no clients -> remove references
                 del self.clients[rtsp_url]
@@ -55,11 +54,8 @@ class RTSPStreamer:
         for client in self.clients.get(rtsp_url, []):
             try:
                 await client.send_text(data)
-            except Exception as err:
-                print(
-                    "Error sending frame to client (likely disconnected):",
-                    err
-                )
+            except Exception as error:
+                logger.error('Error sending frame to client (likely disconnected): %s', error)
                 bad_clients.append(client)
 
         # remove any clients that failed
@@ -85,7 +81,7 @@ class RTSPStreamer:
         push frames into an asyncio.Queue, schedule the task.
         """
         if rtsp_url in self.streams:
-            print(f"Stream already active: {rtsp_url}")
+            logger.info('Stream already active: %s', rtsp_url)
             return
 
         self.queues[rtsp_url] = asyncio.Queue()
@@ -94,7 +90,7 @@ class RTSPStreamer:
         def stream_thread():
             cap = cv2.VideoCapture(rtsp_url)
             if not cap.isOpened():
-                print(f"Failed to open RTSP stream: {rtsp_url}")
+                logger.info('Failed to open RTSP stream: %s', rtsp_url)
                 return
 
             self.streams[rtsp_url] = cap
