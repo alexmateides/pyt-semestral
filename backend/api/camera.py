@@ -7,6 +7,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from backend.database.sqlite_interface import SqliteInterface
+from backend.logger import Logger
 
 
 # pydantic model for Camera
@@ -25,6 +26,7 @@ class Tapo320WSPydanticModel(BaseModel):
 
 # prefix /camera
 router = APIRouter()
+logger = Logger('api/camera').get_child_logger()
 
 # interface init
 sqlite_interface = SqliteInterface()
@@ -63,8 +65,11 @@ async def get_all_cameras() -> JSONResponse:
             }
             for row in cameras
         ]
+        logger.info('[GET][/camera]')
         return JSONResponse(status_code=200, content=camera_list)
+
     except sqlite3.Error as error:
+        logger.error('[GET][/camera] Error retrieving cameras: %s', error)
         raise HTTPException(status_code=500, detail=f'Error retrieving cameras: {error}') from error
 
 
@@ -103,9 +108,11 @@ async def add_or_update_camera(camera: Tapo320WSPydanticModel) -> JSONResponse:
             camera.camera_password,
             camera.name))
         sqlite_interface.connection.commit()
+        logger.info('[POST][/camera] %s', camera.name)
         return JSONResponse(status_code=200, content={"response": f"Camera {camera.name} updated successfully"})
 
     except sqlite3.Error as error:
+        logger.error('[POST][/camera] %s - Error adding or updating camera: %s', camera.name, error)
         raise HTTPException(status_code=500, detail=f"Error adding or updating camera: {error}") from error
 
 
@@ -129,9 +136,12 @@ async def delete_camera(name: str) -> JSONResponse:
         sqlite_interface.cursor.execute('DELETE FROM cameras WHERE name = ?', (name,))
         sqlite_interface.connection.commit()
 
+        logger.info('[DELETE][/camera] %s', name)
+
         return JSONResponse(status_code=200, content={"response": f"Camera {name} deleted successfully"})
 
     except sqlite3.Error as error:
+        logger.error('[DELETE][/camera] %s - Error deleting camera: %s', name, error)
         raise HTTPException(status_code=500, detail=f"Error deleting camera: {error}") from error
 
 
@@ -152,6 +162,8 @@ async def get_camera_by_name(name: str) -> JSONResponse:
         if not camera:
             raise HTTPException(status_code=404, detail=f"Camera {name} not found")
 
+        logger.info('[GET][/camera] %s', name)
+
         return JSONResponse(status_code=200, content={
             "name": camera[0],
             "model": camera[1],
@@ -163,4 +175,5 @@ async def get_camera_by_name(name: str) -> JSONResponse:
         })
 
     except sqlite3.Error as error:
+        logger.error('[GET][/camera] %s - Error retrieving camera: %s', name, error)
         raise HTTPException(status_code=500, detail=f"Error retrieving camera: {error}") from error

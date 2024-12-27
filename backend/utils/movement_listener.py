@@ -11,6 +11,9 @@ from typing import List
 from dotenv import load_dotenv, find_dotenv
 from backend.camera.tapo_320ws.utils import list_tapo_320ws_camera_names
 from backend.camera.tapo_320ws.alarm_status import get_alarm_status
+from backend.logger import Logger
+
+logger = Logger('movement_listener').get_child_logger()
 
 load_dotenv(find_dotenv())
 SENDER_EMAIL = os.getenv("SENDER_EMAIL")
@@ -38,7 +41,7 @@ async def format_events(event: dict) -> str:
 
 
     except KeyError as error:
-        print('key error')
+        logger.error('KeyError: %s', error)
 
 
 async def on_alarm(events: List[dict]) -> None:
@@ -73,10 +76,10 @@ async def on_alarm(events: List[dict]) -> None:
             server.starttls()
             server.login(sender_email, password)
             server.sendmail(sender_email, receiver_email, message.as_string())
-            print("Alarm notification email sent successfully!")
+            logger.info("Alarm notification email sent successfully!")
 
     except SMTPException as error:
-        print(error)
+        logger.error('SMTPException: %s', error)
 
 
 async def movement_listener():
@@ -106,6 +109,7 @@ async def movement_listener():
 
         # do something on alarm
         if global_alarm_status and cooldown <= 0:
+            logger.info('Alarm!!!')
             await on_alarm(global_events)
             cooldown = 300
 

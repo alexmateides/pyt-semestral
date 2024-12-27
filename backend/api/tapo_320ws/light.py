@@ -5,9 +5,11 @@ from asyncio import sleep as asyncio_sleep
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from backend.camera.tapo_320ws.interface import Tapo320WSBaseInterface
+from backend.logger import Logger
 
 # route /camera/info
 router = APIRouter()
+logger = Logger('api/tapo_320ws/light').get_child_logger()
 
 
 @router.get("/light/{name}")
@@ -24,6 +26,8 @@ async def get_light_status(name: str) -> JSONResponse:
 
     # get light status
     response = interface.get_light_status()
+
+    logger.info('[GET][/tapo-w320s/light] %s', name)
 
     return JSONResponse(status_code=200, content=response)
 
@@ -47,5 +51,7 @@ async def change_floodlight_status(name: str) -> JSONResponse:
     await asyncio_sleep(0.3)
 
     status = interface.get_light_status()
+
+    logger.info('[POST][/tapo-w320s/light] %s', name)
 
     return JSONResponse(status_code=200, content=status)

@@ -10,9 +10,11 @@ from pydantic import BaseModel
 from backend.camera.tapo_320ws.interface import Tapo320WSBaseInterface
 from backend.utils.time_utils import iter_dates, timestamp_to_string
 from backend.camera.tapo_320ws.download import download_async
+from backend.logger import Logger
 
 # route /camera/info
 router = APIRouter()
+logger = Logger('api/tapo_320ws/recordings').get_child_logger()
 
 
 class StringList(BaseModel):
@@ -62,6 +64,7 @@ async def get_recordings(name: str, start_date: str, end_date: str) -> JSONRespo
 
         results.extend(tmp_recordings)
 
+    logger.info('[GET][/tapo-w320s/recordings] %s:\t%s - %s', name, start_date, end_date)
     return JSONResponse(status_code=200, content=results)
 
 
@@ -79,6 +82,7 @@ async def download_recordings(name: str, date: str, id_list: StringList) -> JSON
     Returns:        None
     """
     # format date
+    logger.info('[POST][/tapo-w320s/recordings] request -  %s:\t%s', name, date)
     date = datetime.strptime(date, "%Y-%m-%d")
     date = date.strftime("%Y%m%d")
 
@@ -86,6 +90,8 @@ async def download_recordings(name: str, date: str, id_list: StringList) -> JSON
     interface = Tapo320WSBaseInterface(name)
 
     await download_async(interface.tapo_interface, date, id_list.content)
+
+    logger.info('[POST][/tapo-w320s/recordings] downloaded - %s:\t%s', name, date)
 
     return JSONResponse(status_code=200, content="Recording download successful")
 
@@ -107,5 +113,7 @@ async def delete_recordings() -> JSONResponse:
         if os.path.isfile(file_path) and filename.endswith('.mp4'):
             # remove the file
             os.remove(file_path)
+
+    logger.info('[DELETE][/tapo-w320s/recordings]')
 
     return JSONResponse(status_code=200, content="Recording deletion successful")

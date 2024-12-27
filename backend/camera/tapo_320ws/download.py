@@ -105,7 +105,7 @@ class Convert:
                     formatted_stdout = "0"
                 formatted_stdout = float(formatted_stdout)
                 detectedLength = float(formatted_stdout)
-                print(detectedLength)
+                # print(detectedLength)
                 self.known_lengths[self.addedChunks] = detectedLength
                 self.lengthLastCalculatedAtChunk = self.addedChunks
             os.unlink(tmp.name)
@@ -399,14 +399,14 @@ async def download_async(interface, date: str, recording_id_list: List[str]):
     # navigate to /recordings
     output_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
     output_dir = os.path.join(output_dir, 'recordings')
-    print("Getting recordings...")
+    # print("Getting recordings...")
     recordings = interface.getRecordings(date)
     timeCorrection = interface.getTimeCorrection()
     for recording in recordings:
         for key in recording:
             # skip if recording not wanted
             if key not in recording_id_list:
-                print(key)
+                # print(key)
                 continue
 
             downloader = Downloader(
@@ -430,8 +430,8 @@ async def download_async(interface, date: str, recording_id_list: List[str]):
                     )
                 else:
                     statusString += "..."
-                print(
-                    statusString + (" " * 10) + "\r",
-                    end="",
-                )
-            print("")
+            #    print(
+            #        statusString + (" " * 10) + "\r",
+            #        end="",
+            #    )
+            #print("")

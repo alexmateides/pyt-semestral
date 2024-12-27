@@ -25,7 +25,6 @@ class Logger:
             Uses log levels according to logging library:
             DEBUG -> INFO -> WARNING -> ERROR -> CRITICAL
         """
-        print(LOGS_DIR)
         self._path_log = f"{LOGS_DIR}/log.log"
         self._name = name
 
