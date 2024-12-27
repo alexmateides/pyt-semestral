@@ -2,6 +2,7 @@
 Custom logger class using python logging library
 """
 import os
+import io
 import logging
 from logging.handlers import TimedRotatingFileHandler
 import logging.config
@@ -59,7 +60,7 @@ class Logger:
         formatter = logging.Formatter(
             log_format
         )
-        stream_handler = TimedRotatingFileHandler(self._path_log, when='midnight', interval=1, backupCount=3)
+        stream_handler = TimedRotatingFileHandler(self._path_log, when='midnight', interval=1, backupCount=3, encoding='utf-8')
         stream_handler.setFormatter(formatter)
         logger.addHandler(stream_handler)
 

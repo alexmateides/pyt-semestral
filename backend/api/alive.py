@@ -8,7 +8,7 @@ from backend.logger import Logger
 
 # prefix /alive
 router = APIRouter()
-logger = Logger('api/alive').get_child_logger()
+logger = Logger('server_logger.api/alive').get_child_logger()
 
 
 # Simple alive ping

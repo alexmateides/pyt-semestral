@@ -9,7 +9,7 @@ from backend.logger import Logger
 
 # route /camera/info
 router = APIRouter()
-logger = Logger('api/tapo_320ws/light').get_child_logger()
+logger = Logger('server_logger.api/tapo_320ws/light').get_child_logger()
 
 
 @router.get("/light/{name}")

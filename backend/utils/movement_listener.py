@@ -13,7 +13,7 @@ from backend.camera.tapo_320ws.utils import list_tapo_320ws_camera_names
 from backend.camera.tapo_320ws.alarm_status import get_alarm_status
 from backend.logger import Logger
 
-logger = Logger('movement_listener').get_child_logger()
+logger = Logger('server_logger.movement_listener').get_child_logger()
 
 load_dotenv(find_dotenv())
 SENDER_EMAIL = os.getenv("SENDER_EMAIL")

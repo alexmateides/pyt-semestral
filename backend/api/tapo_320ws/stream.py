@@ -10,7 +10,7 @@ from backend.logger import Logger
 # route /camera/stream
 router = APIRouter()
 streamer = RTSPStreamer()
-logger = Logger('api/tapo_320ws/stream').get_child_logger()
+logger = Logger('server_logger.api/tapo_320ws/stream').get_child_logger()
 
 
 # Retrieve camera info

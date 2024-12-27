@@ -8,7 +8,7 @@ from backend.camera.tapo_320ws.interface import Tapo320WSBaseInterface
 from backend.logger import Logger
 
 router = APIRouter()
-logger = Logger('api/tapo_320ws/night').get_child_logger()
+logger = Logger('server_logger.api/tapo_320ws/night').get_child_logger()
 
 
 @router.get("/night/{name}")

@@ -8,7 +8,7 @@ from typing import Dict, List
 import cv2
 from backend.logger import Logger
 
-logger = Logger('video_stream').get_child_logger()
+logger = Logger('server_logger.video_stream').get_child_logger()
 
 class RTSPStreamer:
     """

@@ -26,7 +26,7 @@ class Tapo320WSPydanticModel(BaseModel):
 
 # prefix /camera
 router = APIRouter()
-logger = Logger('api/camera').get_child_logger()
+logger = Logger('server_logger.api/camera').get_child_logger()
 
 # interface init
 sqlite_interface = SqliteInterface()
