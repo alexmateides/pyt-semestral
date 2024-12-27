@@ -1,9 +1,13 @@
 """
 Custom logger class using python logging library
 """
+import os
 import logging
 from logging.handlers import TimedRotatingFileHandler
 import logging.config
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LOGS_DIR = os.path.join(BASE_DIR, 'logs')
 
 
 class Logger:
@@ -11,7 +15,7 @@ class Logger:
     Serves as a wrapper for logger class of logging library
     """
 
-    def __init__(self, name: str, path_logs: str, log_level: str = 'INFO'):
+    def __init__(self, name: str, log_level: str = 'INFO'):
         """
         Args:
             name:           name of the logger (str)
@@ -21,7 +25,8 @@ class Logger:
             Uses log levels according to logging library:
             DEBUG -> INFO -> WARNING -> ERROR -> CRITICAL
         """
-        self._path_log = f"./{path_logs}/log.log"
+        print(LOGS_DIR)
+        self._path_log = f"{LOGS_DIR}/log.log"
         self._name = name
 
         match log_level:
