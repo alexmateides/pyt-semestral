@@ -2,7 +2,7 @@
 Implementation of uvicorn server
 """
 import asyncio
-import os
+from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -15,16 +15,18 @@ from backend.utils.movement_listener import movement_listener
 
 API_KEY = 'TEST'
 
+app = FastAPI()
 
-async def lifespan(server_app: FastAPI):
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     """
     FastAPI lifespan manager to run movement_listener for the whole duration
     Args:
-        server_app:
+        app:
 
     Returns:
     """
-    server_app.get("/alive")
+    app.get("/alive")
     # Create a task to run the listener in the background
     task = asyncio.create_task(movement_listener())
 
@@ -38,8 +40,7 @@ async def lifespan(server_app: FastAPI):
     except asyncio.CancelledError:
         main_logger.info("Listener task cancelled")
 
-
-app = FastAPI(lifespan=lifespan)
+app.router.lifespan_context = lifespan
 
 # set logger
 LOG_LEVEL = 'DEBUG'
