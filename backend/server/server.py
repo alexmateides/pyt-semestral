@@ -43,9 +43,7 @@ app = FastAPI(lifespan=lifespan)
 
 # set logger
 LOG_LEVEL = 'DEBUG'
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-LOGS_DIR = os.path.join(BASE_DIR, '../..', 'logs')
-main_logger = Logger(name='server_logger', path_logs=LOGS_DIR, log_level=LOG_LEVEL).get_main_logger()
+main_logger = Logger(name='server_logger', log_level=LOG_LEVEL).get_main_logger()
 
 
 @app.middleware("http")
