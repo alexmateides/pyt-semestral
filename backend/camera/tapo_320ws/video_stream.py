@@ -4,7 +4,7 @@ Module for video streaming function using openCV2
 import asyncio
 import base64
 import threading
-from asyncio import Queue
+from typing import Dict, List
 import cv2
 
 
@@ -14,119 +14,24 @@ class RTSPStreamer:
     """
 
     def __init__(self):
-        self.streams = {}
-        self.clients = {}
-        self.queues = {}
+        self.streams: Dict[str, cv2.VideoCapture] = {}
+        self.clients: Dict[str, List] = {}
+        self.queues: Dict[str, asyncio.Queue] = {}
 
-        self.loop = asyncio.new_event_loop()
-        self.loop_thread = threading.Thread(target=self.run_loop, daemon=True)
-        self.loop_thread.start()
-
-    def run_loop(self):
-        """
-        Runs the stream event loop
-        """
-        asyncio.set_event_loop(self.loop)
-        self.loop.run_forever()
-
-    async def _send_to_clients(self, rtsp_url: str, frame_bytes) -> None:
-        """
-        Handles sending the stream to clients
-        Args:
-            rtsp_url:       url of the RTSP camera stream
-            frame_bytes:    binary stream of the frames
-        """
-        try:
-            frame_base64 = base64.b64encode(frame_bytes).decode('utf-8')
-        except TypeError as error:
-            raise error
-
-        data = f"data:image/jpeg;base64,{frame_base64}"
-
-        for client in self.clients.get(rtsp_url, []):
-            try:
-                await client.send_text(data)
-            except (RuntimeError, ConnectionError) as client_error:
-                print(f"Error sending frame to client (This may happen when running other things): {client_error}")
-
-    async def _process_stream(self, rtsp_url: str) -> None:
-        """
-        Process frames from the queue and send them to clients
-        Args:
-            rtsp_url:   url of the RTSP camera stream
-        """
-        queue = self.queues[rtsp_url]
-        while len(self.clients.get(rtsp_url, [])) > 0:
-            frame_bytes = await queue.get()
-            await self._send_to_clients(rtsp_url, frame_bytes)
-
-    def start_stream(self, rtsp_url):
-        """
-        Starts the stream in a separate thread
-        Args:
-            rtsp_url:   url of the RTSP camera stream
-        """
-        if rtsp_url in self.streams:
-            print(f"Stream already active: {rtsp_url}")
-            return
-
-        self.queues[rtsp_url] = Queue()
-
-        def stream_thread():
-            """
-            Stream thread function
-            """
-            try:
-                cap = cv2.VideoCapture(rtsp_url)
-                if not cap.isOpened():
-                    print(f"Failed to open RTSP stream: {rtsp_url}")
-                    return
-                self.streams[rtsp_url] = cap
-
-                while len(self.clients.get(rtsp_url, [])) > 0:
-                    success, frame = cap.read()
-                    if not success:
-                        break
-                    _, buffer = cv2.imencode('.jpg', frame)
-                    frame_bytes = buffer.tobytes()
-                    asyncio.run_coroutine_threadsafe(
-                        self.queues[rtsp_url].put(frame_bytes),
-                        self.loop
-                    )
-            finally:
-                cap.release()
-                del self.streams[rtsp_url]
-                del self.queues[rtsp_url]
-
-        threading.Thread(target=stream_thread, daemon=True).start()
-
-        # Start processing frames async
-        self.loop.create_task(self._process_stream(rtsp_url))
-
-    def add_client(self, rtsp_url, websocket):
-        """
-        Adds a client to the stream
-        Args:
-            rtsp_url:   url of the RTSP camera stream
-            websocket:  stream websocket
-        """
+    def add_client(self, rtsp_url: str, websocket):
+        """Adds a WebSocket client to the list and starts stream if needed."""
         if rtsp_url not in self.clients:
             self.clients[rtsp_url] = []
         self.clients[rtsp_url].append(websocket)
 
         print(f"Added client to stream {rtsp_url}. Total clients: {len(self.clients[rtsp_url])}")
 
-        # If no stream is running -> start it
+        # if not already streaming, start
         if rtsp_url not in self.streams:
             self.start_stream(rtsp_url)
 
-    def remove_client(self, rtsp_url, websocket):
-        """
-        Removes a client from the stream
-        Args:
-            rtsp_url:   url of the RTSP camera stream
-            websocket:  stream websocket
-        """
+    def remove_client(self, rtsp_url: str, websocket):
+        """Removes a client from the list and cleans up if no active clients remain."""
         if rtsp_url in self.clients:
             if websocket in self.clients[rtsp_url]:
                 self.clients[rtsp_url].remove(websocket)
@@ -135,4 +40,91 @@ class RTSPStreamer:
                     f"Remaining clients: {len(self.clients[rtsp_url])}"
                 )
             if len(self.clients[rtsp_url]) == 0:
+                # no clients -> remove references
                 del self.clients[rtsp_url]
+
+    async def _send_to_clients(self, rtsp_url: str, frame_bytes: bytes):
+        """
+        Encodes stream (frame) data and sends it to clients.
+        if sending fails, remove the faulty client.
+        """
+        frame_base64 = base64.b64encode(frame_bytes).decode('utf-8')
+        data = f"data:image/jpeg;base64,{frame_base64}"
+
+        bad_clients = []
+        for client in self.clients.get(rtsp_url, []):
+            try:
+                await client.send_text(data)
+            except Exception as err:
+                print(
+                    "Error sending frame to client (likely disconnected):",
+                    err
+                )
+                bad_clients.append(client)
+
+        # remove any clients that failed
+        for bc in bad_clients:
+            self.remove_client(rtsp_url, bc)
+
+    async def _process_stream(self, rtsp_url: str):
+        """
+        Async get frames from self.queues and send them to clients
+        """
+        queue = self.queues[rtsp_url]
+        while True:
+            # if no clients, stop streaming frames
+            if not self.clients.get(rtsp_url):
+                break
+
+            frame_bytes = await queue.get()
+            await self._send_to_clients(rtsp_url, frame_bytes)
+
+    def start_stream(self, rtsp_url: str):
+        """
+        Start reading from RTSP in a background thread,
+        push frames into an asyncio.Queue, schedule the task.
+        """
+        if rtsp_url in self.streams:
+            print(f"Stream already active: {rtsp_url}")
+            return
+
+        self.queues[rtsp_url] = asyncio.Queue()
+        loop = asyncio.get_event_loop()
+
+        def stream_thread():
+            cap = cv2.VideoCapture(rtsp_url)
+            if not cap.isOpened():
+                print(f"Failed to open RTSP stream: {rtsp_url}")
+                return
+
+            self.streams[rtsp_url] = cap
+
+            try:
+                while True:
+                    # if no clients, break out immediately
+                    if not self.clients.get(rtsp_url):
+                        break
+
+                    success, frame = cap.read()
+                    if not success:
+                        break
+                    _, buffer = cv2.imencode('.jpg', frame)
+                    frame_bytes = buffer.tobytes()
+
+                    asyncio.run_coroutine_threadsafe(
+                        self.queues[rtsp_url].put(frame_bytes),
+                        loop
+                    )
+            finally:
+                cap.release()
+                # remove streams
+                if rtsp_url in self.streams:
+                    del self.streams[rtsp_url]
+                if rtsp_url in self.queues:
+                    del self.queues[rtsp_url]
+
+        # start RTSP read thread
+        threading.Thread(target=stream_thread, daemon=True).start()
+
+        # start stream sender
+        loop.create_task(self._process_stream(rtsp_url))

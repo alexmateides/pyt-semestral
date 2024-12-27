@@ -1,7 +1,7 @@
 """
 API endpoint for opening camera stream websocket
 """
-from fastapi import APIRouter, WebSocket, WebSocketException
+from fastapi import APIRouter, WebSocket, WebSocketException, WebSocketDisconnect
 from fastapi.responses import JSONResponse
 from backend.camera.tapo_320ws.interface import Tapo320WSBaseInterface
 from backend.camera.tapo_320ws.video_stream import RTSPStreamer
@@ -36,20 +36,23 @@ async def websocket_stream(websocket: WebSocket, name: str):
     try:
         await websocket.accept()
 
-        # Retrieve the RTSP URL for the given camera name
+        # retrieve RTSP URL for camera name
         interface = Tapo320WSBaseInterface(name)
         rtsp_url = interface.get_stream_url()
 
         print(rtsp_url)
 
-        # Add the client to the RTSPStreamer
+        # add client to the RTSPStreamer
         streamer.add_client(rtsp_url, websocket)
 
-        # Keep the WebSocket connection alive
+        # keep WebSocket connection alive
         while True:
             await websocket.receive_text()
 
+    except WebSocketDisconnect as disconnect_error:
+        print(f"Client disconnected: {disconnect_error.code}, {disconnect_error.reason}")
+
     except WebSocketException as error:
-        # Remove the client from the RTSPStreamer
+        # remove client from the RTSPStreamer
         streamer.remove_client(rtsp_url, websocket)
         return JSONResponse(status_code=500, content={f"WebSocket Error:\t{error}"})
