@@ -17,19 +17,15 @@ from backend.utils.movement_listener import movement_listener
 
 API_KEY = 'TEST'
 
-app = FastAPI()
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
     FastAPI lifespan manager to run movement_listener for the whole duration
     Args:
-        app:
 
     Returns:
     """
-    app.get("/alive")
     # Create a task to run the listener in the background
     task = asyncio.create_task(movement_listener())
 
@@ -44,7 +40,7 @@ async def lifespan(app: FastAPI):
         main_logger.info("Listener task cancelled")
 
 
-app.router.lifespan_context = lifespan
+app = FastAPI(lifespan=lifespan)
 
 # set logger
 LOG_LEVEL = 'DEBUG'

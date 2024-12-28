@@ -9,5 +9,7 @@ opencv-python
 aiofiles
 pytest-asyncio
 httpx
+pytest
 pytest-cov
 pytest-mock
+numpy

@@ -1,4 +1,10 @@
+"""
+tests for /info/{name} endpoint
+"""
 def test_get_info_success(client):
+    """
+    test GET /info/{name} endpoint
+    """
 
     response = client.get("/tapo-320ws/info/TestCam", headers={"api-key": "TEST"})
 

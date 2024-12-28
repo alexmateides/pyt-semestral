@@ -1,8 +1,14 @@
+"""
+tests for /tapo-320ws/light/{name}
+"""
 from unittest.mock import patch
 from fastapi.exceptions import HTTPException
 
 
 def test_get_light_success(client):
+    """
+    tests GET /tapo-320ws/light/{name}
+    """
     response = client.get("/tapo-320ws/light/TestCam", headers={"api-key": "TEST"})
 
     assert response.status_code == 200
@@ -12,6 +18,9 @@ def test_get_light_success(client):
 # simulate not found
 @patch("backend.api.tapo_320ws.light.Tapo320WSBaseInterface")
 def test_get_light_fail(mock_camera_class, client):
+    """
+    tests GET /tapo-320ws/light/{name} fail
+    """
     mock_camera_instance = mock_camera_class.return_value
     mock_camera_instance.get_light_status.side_effect = HTTPException(status_code=404, detail="Not found")
 
@@ -23,6 +32,9 @@ def test_get_light_fail(mock_camera_class, client):
 
 
 def test_post_light_success(client):
+    """
+    tests POST /tapo-320ws/light/{name}
+    """
     response = client.post("/tapo-320ws/light/TestCam", headers={"api-key": "TEST"})
 
     # actual light status didn't change since the test values are fixed
@@ -32,6 +44,9 @@ def test_post_light_success(client):
 
 @patch("backend.api.tapo_320ws.light.Tapo320WSBaseInterface")
 def test_post_light_fail(mock_camera_class, client):
+    """
+    tests POST /tapo-320ws/light/{name} fail
+    """
     mock_camera_instance = mock_camera_class.return_value
 
     mock_camera_instance.change_light_status.side_effect = HTTPException(

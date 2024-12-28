@@ -1,9 +1,15 @@
+"""
+tests for movement_listener module
+"""
 import pytest
 from backend.utils.movement_listener import format_events
 
 
 @pytest.mark.asyncio
 async def test_format_events():
+    """
+    format_events tester
+    """
     event = {
         "camera_name": "TestCam",
         "start_time": "16:02:55",

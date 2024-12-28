@@ -1,9 +1,15 @@
-import pytest
+"""
+Tests for time_utils module
+"""
 from datetime import datetime
+import pytest
 from backend.utils.time_utils import iter_dates, timestamp_to_string
 
 
 def test_iter_dates():
+    """
+    iter_dates function tester
+    """
     start_date = "2024-12-01"
     end_date = "2024-12-05"
     expected = ["20241201", "20241202", "20241203", "20241204", "20241205"]
@@ -24,6 +30,9 @@ def test_iter_dates():
 
 
 def test_timestamp_to_string():
+    """
+    timestamp_to_string function tester
+    """
     timestamp = 1735225375
     expected_time = datetime.fromtimestamp(timestamp).strftime("%H:%M:%S")
     assert timestamp_to_string(timestamp) == expected_time

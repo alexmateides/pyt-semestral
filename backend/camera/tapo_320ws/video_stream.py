@@ -6,6 +6,7 @@ import base64
 import threading
 from typing import Dict, List
 import cv2
+from websockets.exceptions import WebSocketException, ConnectionClosed
 from backend.logger import Logger
 
 logger = Logger('server_logger.video_stream').get_child_logger()
@@ -42,7 +43,7 @@ class RTSPStreamer:
                 # no clients -> remove references
                 del self.clients[rtsp_url]
 
-    async def _send_to_clients(self, rtsp_url: str, frame_bytes: bytes):
+    async def send_to_clients(self, rtsp_url: str, frame_bytes: bytes):
         """
         Encodes stream (frame) data and sends it to clients.
         if sending fails, remove the faulty client.
@@ -54,7 +55,7 @@ class RTSPStreamer:
         for client in self.clients.get(rtsp_url, []):
             try:
                 await client.send_text(data)
-            except Exception as error:
+            except (WebSocketException, ConnectionClosed, RuntimeError) as error:
                 logger.error('Error sending frame to client (likely disconnected): %s', error)
                 bad_clients.append(client)
 
@@ -62,7 +63,7 @@ class RTSPStreamer:
         for bad_client in bad_clients:
             self.remove_client(rtsp_url, bad_client)
 
-    async def _process_stream(self, rtsp_url: str):
+    async def process_stream(self, rtsp_url: str):
         """
         Async get frames from self.queues and send them to clients
         """
@@ -73,7 +74,7 @@ class RTSPStreamer:
                 break
 
             frame_bytes = await queue.get()
-            await self._send_to_clients(rtsp_url, frame_bytes)
+            await self.send_to_clients(rtsp_url, frame_bytes)
 
     def start_stream(self, rtsp_url: str):
         """
@@ -123,4 +124,4 @@ class RTSPStreamer:
         threading.Thread(target=stream_thread, daemon=True).start()
 
         # start stream sender
-        loop.create_task(self._process_stream(rtsp_url))
+        loop.create_task(self.process_stream(rtsp_url))

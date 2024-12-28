@@ -141,6 +141,5 @@ class Tapo320WSBaseInterface(CameraBaseInterface):
         """
         timestamp = minute_ago()
         events = self.tapo_interface.getEvents(startTime=timestamp)
-        print(events)
 
         return events

@@ -1,14 +1,25 @@
-import pytest
+"""
+tests for camera/tapo_320ws/stream module
+"""
 import asyncio
 from unittest.mock import MagicMock
+import numpy as np
+import pytest
 
 from backend.camera.tapo_320ws.video_stream import RTSPStreamer
 
 
 @pytest.mark.asyncio
 class TestRTSPStreamer:
+    """
+    RTSPStreamer test class
+    """
+
     @pytest.fixture
     def rtsp_streamer(self):
+        """
+        returns original RTSPStreamer
+        """
         return RTSPStreamer()
 
     @pytest.fixture
@@ -35,8 +46,7 @@ class TestRTSPStreamer:
         mock_start_stream.assert_called_once_with(rtsp_url)
 
     @pytest.mark.asyncio
-    async def test_not_start_stream_if_already_exists(self, rtsp_streamer, mock_websocket,
-                                                      mocker):
+    async def test_not_start_stream_if_already_exists(self, rtsp_streamer, mock_websocket):
         """
         if the stream exists -> check start_stream is doesnt get called again
         """
@@ -83,7 +93,7 @@ class TestRTSPStreamer:
 
         # sample fake bytes
         frame_bytes = b'\xff\xff\xff\xff'
-        await rtsp_streamer._send_to_clients(rtsp_url, frame_bytes)
+        await rtsp_streamer.send_to_clients(rtsp_url, frame_bytes)
 
         assert mock_websocket.send_text.await_count == 1
         assert rtsp_url in rtsp_streamer.clients
@@ -94,12 +104,13 @@ class TestRTSPStreamer:
         if client fails to receive a message -> remove the client
         """
         failing_ws = MagicMock()
-        failing_ws.send_text = mocker.AsyncMock(side_effect=Exception("Fail sending"))
+        failing_ws.send_text = mocker.AsyncMock(side_effect=RuntimeError("Fail sending"))
         rtsp_url = 'rtsp://send_fail'
         rtsp_streamer.clients[rtsp_url] = [failing_ws]
 
-        frame_bytes = b'\xff\xd8\xff...'
-        await rtsp_streamer._send_to_clients(rtsp_url, frame_bytes)
+        # sample fake bytes
+        frame_bytes = b'\xff\xff\xff\xff'
+        await rtsp_streamer.send_to_clients(rtsp_url, frame_bytes)
 
         assert failing_ws not in rtsp_streamer.clients.get(rtsp_url, [])
 
@@ -119,20 +130,23 @@ class TestRTSPStreamer:
         await queue.put(b'frame1')
         await queue.put(b'frame2')
 
-        original_send_to_clients = rtsp_streamer._send_to_clients
+        original_send_to_clients = rtsp_streamer.send_to_clients
 
         async def side_effect_send_to_clients(url, frame):
+            """
+            helper function
+            """
             # first frame -> remove client
             rtsp_streamer.clients[rtsp_url].remove(ws)
             return await original_send_to_clients(url, frame)
 
         mocker.patch.object(
             rtsp_streamer,
-            '_send_to_clients',
+            'send_to_clients',
             side_effect=side_effect_send_to_clients
         )
 
-        task = asyncio.create_task(rtsp_streamer._process_stream(rtsp_url))
+        task = asyncio.create_task(rtsp_streamer.process_stream(rtsp_url))
 
         await asyncio.sleep(0.1)
 
@@ -143,8 +157,6 @@ class TestRTSPStreamer:
         """
         test start_stream opens new VideoCapture, reads frames, and pushes them to the queue
         """
-        import numpy as np
-
         rtsp_url = 'rtsp://start_test'
         mock_capture = MagicMock()
         mock_capture.isOpened.return_value = True
@@ -158,7 +170,7 @@ class TestRTSPStreamer:
 
         mocker.patch('cv2.VideoCapture', return_value=mock_capture)
 
-        rtsp_streamer.clients[rtsp_url] = ['some_websocket']
+        rtsp_streamer.clients[rtsp_url] = ['test_websocket']
 
         rtsp_streamer.start_stream(rtsp_url)
 
