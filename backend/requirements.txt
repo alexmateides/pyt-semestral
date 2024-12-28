@@ -1,0 +1,16 @@
+pytapo
+uvicorn
+fastapi
+requests
+pymongo
+python-dotenv
+pydantic
+opencv-python
+aiofiles
+pytest-asyncio
+httpx
+pytest
+pytest-cov
+pytest-mock
+numpy
+websockets
