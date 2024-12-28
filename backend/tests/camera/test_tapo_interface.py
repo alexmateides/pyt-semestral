@@ -1,8 +1,8 @@
 """
 tests Tapo320WSBaseInterface class against base set in conftest.py
 """
-from backend.camera.tapo_320ws.interface import Tapo320WSBaseInterface
-from backend.tests.conftest import TAPO_320WS_TEST_DEFAULTS
+from app.camera.tapo_320ws.interface import Tapo320WSBaseInterface
+from app.tests.conftest import TAPO_320WS_TEST_DEFAULTS
 
 
 def test_get_info():

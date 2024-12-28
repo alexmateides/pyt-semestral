@@ -2,7 +2,7 @@
 tests for movement_listener module
 """
 import pytest
-from backend.utils.movement_listener import format_events
+from app.utils.movement_listener import format_events
 
 
 @pytest.mark.asyncio

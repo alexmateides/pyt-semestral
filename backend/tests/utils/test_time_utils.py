@@ -3,7 +3,7 @@ Tests for time_utils module
 """
 from datetime import datetime
 import pytest
-from backend.utils.time_utils import iter_dates, timestamp_to_string
+from app.utils.time_utils import iter_dates, timestamp_to_string
 
 
 def test_iter_dates():

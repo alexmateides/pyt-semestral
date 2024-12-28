@@ -2,8 +2,8 @@
 tests for tapo320ws/utils
 """
 from unittest.mock import MagicMock, patch
-from backend.camera.tapo_320ws.utils import get_auth_by_name, list_tapo_320ws_camera_names
-from backend.tests.conftest import TEST_CAMERA, TEST_CAMERA2
+from app.camera.tapo_320ws.utils import get_auth_by_name, list_tapo_320ws_camera_names
+from app.tests.conftest import TEST_CAMERA, TEST_CAMERA2
 
 mock_camera = TEST_CAMERA
 
@@ -21,7 +21,7 @@ mock_name_rows = [
 ]
 
 
-@patch("backend.camera.tapo_320ws.utils.SqliteInterface")
+@patch("app.camera.tapo_320ws.utils.SqliteInterface")
 def test_get_auth_by_name(mock_sqlite_interface):
     """
     tests geth_auth_by_name function
@@ -42,7 +42,7 @@ def test_get_auth_by_name(mock_sqlite_interface):
     assert camera_password == TEST_CAMERA['camera_password']
 
 
-@patch("backend.camera.tapo_320ws.utils.SqliteInterface")
+@patch("app.camera.tapo_320ws.utils.SqliteInterface")
 def test_list_tapo_320ws_camera_names(mock_sqlite_interface):
     """
     tests list_tapo_320ws_camera_names function

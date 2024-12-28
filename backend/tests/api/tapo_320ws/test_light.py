@@ -16,7 +16,7 @@ def test_get_light_success(client):
 
 
 # simulate not found
-@patch("backend.api.tapo_320ws.light.Tapo320WSBaseInterface")
+@patch("app.api.tapo_320ws.light.Tapo320WSBaseInterface")
 def test_get_light_fail(mock_camera_class, client):
     """
     tests GET /tapo-320ws/light/{name} fail
@@ -42,7 +42,7 @@ def test_post_light_success(client):
     assert response.json() == {"status": 0, "rest_time": 0}
 
 
-@patch("backend.api.tapo_320ws.light.Tapo320WSBaseInterface")
+@patch("app.api.tapo_320ws.light.Tapo320WSBaseInterface")
 def test_post_light_fail(mock_camera_class, client):
     """
     tests POST /tapo-320ws/light/{name} fail

@@ -15,7 +15,7 @@ def test_get_night_success(client):
     assert response.json() == "off"
 
 
-@patch("backend.api.tapo_320ws.night.Tapo320WSBaseInterface")
+@patch("app.api.tapo_320ws.night.Tapo320WSBaseInterface")
 def test_get_night_fail(mock_camera_class, client):
     """
     tests GET /tapo-320ws/night/{name} failure
@@ -41,7 +41,7 @@ def test_post_night_success(client):
     assert response.json() == "off"
 
 
-@patch("backend.api.tapo_320ws.night.Tapo320WSBaseInterface")
+@patch("app.api.tapo_320ws.night.Tapo320WSBaseInterface")
 def test_post_night_fail(mock_camera_class, client):
     """
     tests POST /tapo-320ws/night/{name} failure

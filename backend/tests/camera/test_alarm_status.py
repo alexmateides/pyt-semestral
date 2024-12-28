@@ -1,7 +1,7 @@
 """
 tests functionalities of alarm_status module
 """
-from backend.camera.tapo_320ws.alarm_status import get_alarm_status
+from app.camera.tapo_320ws.alarm_status import get_alarm_status
 
 
 def test_get_alarm_status():

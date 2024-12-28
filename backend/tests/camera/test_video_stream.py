@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 import numpy as np
 import pytest
 
-from backend.camera.tapo_320ws.video_stream import RTSPStreamer
+from app.camera.tapo_320ws.video_stream import RTSPStreamer
 
 
 @pytest.mark.asyncio

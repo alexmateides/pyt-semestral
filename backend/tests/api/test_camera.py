@@ -3,7 +3,7 @@
 """
 from unittest.mock import MagicMock, patch
 
-from backend.tests.conftest import TEST_CAMERA
+from app.tests.conftest import TEST_CAMERA
 
 # mock data
 mock_camera = TEST_CAMERA
@@ -12,7 +12,7 @@ mock_camera_row = (
 )
 
 
-@patch("backend.api.camera.SqliteInterface")
+@patch("app.api.camera.SqliteInterface")
 def test_get_all_cameras(mock_sqlite_interface, client):
     """
     tests GET /camera
@@ -29,7 +29,7 @@ def test_get_all_cameras(mock_sqlite_interface, client):
     assert response.json() == expected_response
 
 
-@patch("backend.api.camera.SqliteInterface")
+@patch("app.api.camera.SqliteInterface")
 def test_add_new_camera(mock_sqlite_interface, client):
     """
     tests POST /camera
@@ -45,7 +45,7 @@ def test_add_new_camera(mock_sqlite_interface, client):
     assert response.json() == {"response": "Camera TestCam created successfully"}
 
 
-@patch("backend.api.camera.SqliteInterface")
+@patch("app.api.camera.SqliteInterface")
 def test_update_existing_camera(mock_sqlite_interface, client):
     """
     tests POST /camera
@@ -64,7 +64,7 @@ def test_update_existing_camera(mock_sqlite_interface, client):
     assert response.json() == {"response": "Camera TestCam updated successfully"}
 
 
-@patch("backend.api.camera.SqliteInterface")
+@patch("app.api.camera.SqliteInterface")
 def test_delete_existing_camera(mock_sqlite_interface, client):
     """
     test DELETE /camera
@@ -80,7 +80,7 @@ def test_delete_existing_camera(mock_sqlite_interface, client):
     assert response.json() == {"response": "Camera TestCam deleted successfully"}
 
 
-@patch("backend.api.camera.SqliteInterface")
+@patch("app.api.camera.SqliteInterface")
 def test_delete_nonexistent_camera(mock_sqlite_interface, client):
     """
     test DELETE /camera failure
@@ -96,7 +96,7 @@ def test_delete_nonexistent_camera(mock_sqlite_interface, client):
     assert response.json() == {"detail": "Camera TestCam2 not found"}
 
 
-@patch("backend.api.camera.SqliteInterface")
+@patch("app.api.camera.SqliteInterface")
 def test_get_camera_by_name(mock_sqlite_interface, client):
     """
     tests GET /camera/name
@@ -113,7 +113,7 @@ def test_get_camera_by_name(mock_sqlite_interface, client):
     assert response.json() == expected_response
 
 
-@patch("backend.api.camera.SqliteInterface")
+@patch("app.api.camera.SqliteInterface")
 def test_get_nonexistent_camera_by_name(mock_sqlite_interface, client):
     """
     test GET /camera failure

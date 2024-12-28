@@ -5,8 +5,8 @@ from unittest.mock import patch
 from fastapi.exceptions import HTTPException
 
 
-@patch("backend.api.tapo_320ws.recordings.Tapo320WSBaseInterface")
-@patch("backend.api.tapo_320ws.recordings.iter_dates")
+@patch("app.api.tapo_320ws.recordings.Tapo320WSBaseInterface")
+@patch("app.api.tapo_320ws.recordings.iter_dates")
 def test_get_recordings_success(mock_camera_class, mock_iter_dates, client):
     """
     tests GET /tapo-320ws/recordings/{name}?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
@@ -26,7 +26,7 @@ def test_get_recordings_success(mock_camera_class, mock_iter_dates, client):
     assert response.status_code == 200
 
 
-@patch("backend.api.tapo_320ws.recordings.Tapo320WSBaseInterface")
+@patch("app.api.tapo_320ws.recordings.Tapo320WSBaseInterface")
 def test_get_recordings_fail(mock_camera_class, client):
     """
     tests GET /tapo-320ws/recordings/{name}?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD failure
@@ -39,8 +39,8 @@ def test_get_recordings_fail(mock_camera_class, client):
     assert response.json() == {"detail": "Camera not found"}
 
 
-@patch("backend.api.tapo_320ws.recordings.Tapo320WSBaseInterface")
-@patch("backend.api.tapo_320ws.recordings.download_async")
+@patch("app.api.tapo_320ws.recordings.Tapo320WSBaseInterface")
+@patch("app.api.tapo_320ws.recordings.download_async")
 def test_post_download_recordings_success(mock_download_async, mock_camera_class, client):
     """
     tests POST /tapo-320ws/recordings/{name}
@@ -60,8 +60,8 @@ def test_post_download_recordings_success(mock_download_async, mock_camera_class
     mock_download_async.assert_called_once()
 
 
-@patch("backend.api.tapo_320ws.recordings.Tapo320WSBaseInterface")
-@patch("backend.api.tapo_320ws.recordings.download_async")
+@patch("app.api.tapo_320ws.recordings.Tapo320WSBaseInterface")
+@patch("app.api.tapo_320ws.recordings.download_async")
 def test_post_download_recordings_fail(mock_download_async, mock_camera_class, client):
     """
     tests POST /tapo-320ws/recordings/{name} failure
@@ -79,7 +79,7 @@ def test_post_download_recordings_fail(mock_download_async, mock_camera_class, c
     mock_download_async.assert_not_called()
 
 
-@patch("backend.api.tapo_320ws.recordings.os")
+@patch("app.api.tapo_320ws.recordings.os")
 def test_delete_recordings_success(mock_os, client):
     """
     tests DELETE /tapo-320ws/recordings/
@@ -95,7 +95,7 @@ def test_delete_recordings_success(mock_os, client):
     assert mock_os.remove.call_count == 2
 
 
-@patch("backend.api.tapo_320ws.recordings.os")
+@patch("app.api.tapo_320ws.recordings.os")
 def test_delete_recordings_no_files(mock_os, client):
     """
     tests DELETE /tapo-320ws/recordings/ with no fiels present
