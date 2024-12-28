@@ -7,3 +7,7 @@ python-dotenv
 pydantic
 opencv-python
 aiofiles
+pytest-asyncio
+httpx
+pytest-cov
+pytest-mock

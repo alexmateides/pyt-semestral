@@ -30,6 +30,8 @@ def get_auth_by_name(name: str) -> Tuple[str, str, str, str, str]:
 
     except sqlite3.Error as error:
         raise error
+    except TypeError as type_error:
+        raise type_error
 
 
 def list_tapo_320ws_camera_names() -> List:

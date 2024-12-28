@@ -59,8 +59,8 @@ class RTSPStreamer:
                 bad_clients.append(client)
 
         # remove any clients that failed
-        for bc in bad_clients:
-            self.remove_client(rtsp_url, bc)
+        for bad_client in bad_clients:
+            self.remove_client(rtsp_url, bad_client)
 
     async def _process_stream(self, rtsp_url: str):
         """

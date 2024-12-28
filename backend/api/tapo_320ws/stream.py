@@ -46,8 +46,6 @@ async def websocket_stream(websocket: WebSocket, name: str):
         interface = Tapo320WSBaseInterface(name)
         rtsp_url = interface.get_stream_url()
 
-        print(rtsp_url)
-
         # add client to the RTSPStreamer
         streamer.add_client(rtsp_url, websocket)
 

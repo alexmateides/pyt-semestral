@@ -29,10 +29,10 @@ router = APIRouter()
 logger = Logger('server_logger.api/camera').get_child_logger()
 
 # interface init
-sqlite_interface = SqliteInterface()
+module_sqlite_interface = SqliteInterface()
 
 # Ensure camera table exists
-sqlite_interface.exec("""
+module_sqlite_interface.exec("""
 CREATE TABLE IF NOT EXISTS cameras (
     name TEXT PRIMARY KEY,
     model TEXT NOT NULL,
@@ -51,6 +51,7 @@ async def get_all_cameras() -> JSONResponse:
     Returns: List of cameras
     """
     try:
+        sqlite_interface = SqliteInterface()
         sqlite_interface.cursor.execute('SELECT * FROM cameras')
         cameras = sqlite_interface.cursor.fetchall()
         camera_list = [
@@ -65,7 +66,7 @@ async def get_all_cameras() -> JSONResponse:
             }
             for row in cameras
         ]
-        logger.info('[GET][/camera]')
+        logger.info('[GET][/camera] - %s', cameras)
         return JSONResponse(status_code=200, content=camera_list)
 
     except sqlite3.Error as error:
@@ -85,6 +86,7 @@ async def add_or_update_camera(camera: Tapo320WSPydanticModel) -> JSONResponse:
     Returns:
     """
     try:
+        sqlite_interface = SqliteInterface()
         # Check if the camera already exists
         sqlite_interface.cursor.execute('SELECT * FROM cameras WHERE name = ?', (camera.name,))
         existing_camera = sqlite_interface.cursor.fetchone()
@@ -127,6 +129,7 @@ async def delete_camera(name: str) -> JSONResponse:
     Returns: None
     """
     try:
+        sqlite_interface = SqliteInterface()
         sqlite_interface.cursor.execute('SELECT * FROM cameras WHERE name = ?', (name,))
         existing_camera = sqlite_interface.cursor.fetchone()
 
@@ -156,6 +159,7 @@ async def get_camera_by_name(name: str) -> JSONResponse:
     Returns: Camera details
     """
     try:
+        sqlite_interface = SqliteInterface()
         sqlite_interface.cursor.execute('SELECT * FROM cameras WHERE name = ?', (name,))
         camera = sqlite_interface.cursor.fetchone()
 

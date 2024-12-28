@@ -7,6 +7,8 @@ import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import HTTPException
+
 from backend.logger import Logger
 from backend.api.alive import router as alive_router
 from backend.api.tapo_320ws import router as tapo_320ws_router
@@ -16,6 +18,7 @@ from backend.utils.movement_listener import movement_listener
 API_KEY = 'TEST'
 
 app = FastAPI()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -40,6 +43,7 @@ async def lifespan(app: FastAPI):
     except asyncio.CancelledError:
         main_logger.info("Listener task cancelled")
 
+
 app.router.lifespan_context = lifespan
 
 # set logger
@@ -48,13 +52,19 @@ main_logger = Logger(name='server_logger', log_level=LOG_LEVEL).get_main_logger(
 
 
 @app.middleware("http")
-async def catch_all(request: Request, call_next):
+async def handle_exceptions(request: Request, call_next):
     """
-    Prevents the server from crashing on unexpected exceptions
+    Exception handling middleware
     """
     try:
         response = await call_next(request)
         return response
+
+    # propagates exceptions
+    except HTTPException as error:
+        raise error
+
+    # catches all other unhandled exceptions -> prevents server crash
     except Exception as error:
         main_logger.exception(error)
 

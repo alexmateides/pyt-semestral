@@ -1,7 +1,9 @@
 """
 Tapo camera interface
 """
+from fastapi.exceptions import HTTPException
 from pytapo import Tapo
+
 from backend.camera.base_interface import CameraBaseInterface
 from backend.camera.tapo_320ws.utils import get_auth_by_name
 from backend.utils.time_utils import minute_ago
@@ -17,7 +19,10 @@ class Tapo320WSBaseInterface(CameraBaseInterface):
         self.name = name
 
         # get auth
-        ip, username, password, camera_username, camera_password = get_auth_by_name(name)
+        try:
+            ip, username, password, camera_username, camera_password = get_auth_by_name(name)
+        except TypeError as error:
+            raise HTTPException(status_code=404, detail="Not found") from error
 
         self.ip = ip
         self.username = username
@@ -136,5 +141,6 @@ class Tapo320WSBaseInterface(CameraBaseInterface):
         """
         timestamp = minute_ago()
         events = self.tapo_interface.getEvents(startTime=timestamp)
+        print(events)
 
         return events

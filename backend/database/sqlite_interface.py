@@ -11,10 +11,13 @@ class SqliteInterface:
     SQLite interface - simplifies connecting to database path
     """
 
-    def __init__(self):
+    def __init__(self, path_db: str = None):
         load_dotenv(find_dotenv())
-        database_dir = os.path.dirname(os.path.abspath(__file__))
-        self.path_database = os.path.join(database_dir, 'sqlite-database.db')
+        if path_db is None:
+            database_dir = os.path.dirname(os.path.abspath(__file__))
+            self.path_database = os.path.join(database_dir, 'sqlite-database.db')
+        else:
+            self.path_database = path_db
         self.connection = sqlite3.connect(self.path_database)
         self.cursor = self.connection.cursor()
 

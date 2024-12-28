@@ -2,7 +2,6 @@
 Custom logger class using python logging library
 """
 import os
-import io
 import logging
 from logging.handlers import TimedRotatingFileHandler
 import logging.config
