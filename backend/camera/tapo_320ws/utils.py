@@ -3,6 +3,7 @@ Utility function for Tapo320WS cameras
 """
 from typing import Tuple, List
 import sqlite3
+
 from backend.database.sqlite_interface import SqliteInterface
 
 
