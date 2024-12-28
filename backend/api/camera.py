@@ -7,7 +7,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from backend.database.sqlite_interface import SqliteInterface
-from backend.logger import Logger
+from backend.utils.logger import Logger
 
 
 # pydantic model for Camera

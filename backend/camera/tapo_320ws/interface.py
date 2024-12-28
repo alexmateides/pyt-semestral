@@ -22,7 +22,7 @@ class Tapo320WSBaseInterface(CameraBaseInterface):
         try:
             ip, username, password, camera_username, camera_password = get_auth_by_name(name)
         except TypeError as error:
-            raise HTTPException(status_code=404, detail="Not found") from error
+            raise HTTPException(status_code=404, detail=f"Camera with name: {name} not found.") from error
 
         self.ip = ip
         self.username = username

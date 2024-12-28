@@ -1,6 +1,7 @@
 """
 Implementation of uvicorn server
 """
+import os
 import asyncio
 from contextlib import asynccontextmanager
 import uvicorn
@@ -8,14 +9,17 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import HTTPException
+from dotenv import load_dotenv, find_dotenv
 
-from backend.logger import Logger
+from backend.utils.logger import Logger
 from backend.api.alive import router as alive_router
 from backend.api.tapo_320ws import router as tapo_320ws_router
 from backend.api.camera import router as camera_router
 from backend.utils.movement_listener import movement_listener
 
-API_KEY = 'TEST'
+load_dotenv(find_dotenv())
+
+API_KEY = os.getenv("API_KEY")
 
 
 @asynccontextmanager
@@ -82,8 +86,8 @@ async def api_validate(request: Request, call_next):
     return response
 
 
-# include api routes
-
+# Include api routes
+# ------------------
 # alive ping (mainly used for debugging)
 app.include_router(alive_router, prefix="/alive")
 

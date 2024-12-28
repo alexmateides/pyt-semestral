@@ -11,7 +11,7 @@ from typing import List
 from dotenv import load_dotenv, find_dotenv
 from backend.camera.tapo_320ws.utils import list_tapo_320ws_camera_names
 from backend.camera.tapo_320ws.alarm_status import get_alarm_status
-from backend.logger import Logger
+from backend.utils.logger import Logger
 
 logger = Logger('server_logger.movement_listener').get_child_logger()
 

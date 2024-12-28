@@ -5,7 +5,7 @@ from asyncio import sleep as asyncio_sleep
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from backend.camera.tapo_320ws.interface import Tapo320WSBaseInterface
-from backend.logger import Logger
+from backend.utils.logger import Logger
 
 # route /camera/info
 router = APIRouter()

@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from backend.camera.tapo_320ws.interface import Tapo320WSBaseInterface
 from backend.utils.time_utils import iter_dates, timestamp_to_string
 from backend.camera.tapo_320ws.download import download_async
-from backend.logger import Logger
+from backend.utils.logger import Logger
 
 # route /camera/info
 router = APIRouter()

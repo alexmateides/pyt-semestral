@@ -1,20 +1,24 @@
 """
 Pytest configuration file
 """
+import os
 from unittest.mock import patch
 import pytest
+from dotenv import load_dotenv, find_dotenv
 from fastapi.testclient import TestClient
-from backend.main import app
+from backend.__main__ import app
 from backend.camera.tapo_320ws.interface import Tapo320WSBaseInterface
 from backend.database.sqlite_interface import SqliteInterface
 
+load_dotenv(find_dotenv())
+API_KEY = os.getenv("API_KEY")
 
 @pytest.fixture
 def client():
     """
     Provides a FastAPI test client for each test.
     """
-    headers = {'api-key': "TEST"}
+    headers = {'api-key': API_KEY}
     return TestClient(app, headers=headers)
 
 

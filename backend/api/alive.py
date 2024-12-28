@@ -3,7 +3,7 @@ Alive ping for checking server health
 """
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
-from backend.logger import Logger
+from backend.utils.logger import Logger
 
 
 # prefix /alive

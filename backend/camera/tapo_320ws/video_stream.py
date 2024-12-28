@@ -7,7 +7,7 @@ import threading
 from typing import Dict, List
 import cv2
 from websockets.exceptions import WebSocketException, ConnectionClosed
-from backend.logger import Logger
+from backend.utils.logger import Logger
 
 logger = Logger('server_logger.video_stream').get_child_logger()
 
