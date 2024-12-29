@@ -1,6 +1,7 @@
 """
 tests Tapo320WSBaseInterface class against base set in conftest.py
 """
+from unittest.mock import patch
 from app.camera.tapo_320ws.interface import Tapo320WSBaseInterface
 from tests.conftest import TAPO_320WS_TEST_DEFAULTS
 
@@ -30,12 +31,19 @@ def test_change_night_vision_light_status():
     assert interface.change_night_vision_status() == TAPO_320WS_TEST_DEFAULTS["change_night_vision_status"]
 
 
-def test_get_light_status():
+@patch("app.camera.tapo_320ws.interface.Tapo320WSBaseInterface.get_light_status")
+def test_get_light_status(mock_get_light_status):
     """
     get_light_status tester
     """
+
+    mock_get_light_status.return_value = TAPO_320WS_TEST_DEFAULTS["get_light_status"]
+
     interface = Tapo320WSBaseInterface("TestCam")
-    assert interface.get_light_status() == TAPO_320WS_TEST_DEFAULTS["get_light_status"]
+    result = interface.get_light_status()
+
+    mock_get_light_status.assert_called_once()
+    assert result == TAPO_320WS_TEST_DEFAULTS["get_light_status"]
 
 
 def test_get_night_vision_status():

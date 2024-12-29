@@ -50,8 +50,7 @@ def test_post_download_recordings_success(mock_download_async, mock_camera_class
 
     response = client.post(
         "/tapo-320ws/recordings/TestCam",
-        json={"content": ["recording1", "recording2"]},
-        params={"date": "2024-01-01", "id_list": ["recording1", "recording2"]},
+        json={"date": "2024-01-01", "id": "recording1"},
     )
 
     assert mock_camera_instance is not None
@@ -70,8 +69,7 @@ def test_post_download_recordings_fail(mock_download_async, mock_camera_class, c
 
     response = client.post(
         "/tapo-320ws/recordings/InvalidCam",
-        json={"content": ["recording1", "recording2"]},
-        params={"date": "2024-01-01", "id_list": ["recording1", "recording2"]},
+        json={"date": "2024-01-01", "id": "recording1"},
     )
 
     assert response.status_code == 404

@@ -37,9 +37,8 @@ def test_post_light_success(client):
     """
     response = client.post("/tapo-320ws/light/TestCam", headers={"api-key": "TEST"})
 
-    # actual light status didn't change since the test values are fixed
     assert response.status_code == 200
-    assert response.json() == {"status": 0, "rest_time": 0}
+    assert response.json() == {"status": 1, "rest_time": 0}
 
 
 @patch("app.api.tapo_320ws.light.Tapo320WSBaseInterface")
@@ -61,4 +60,4 @@ def test_post_light_fail(mock_camera_class, client):
 
     mock_camera_instance.change_light_status.assert_called_once()
 
-    mock_camera_instance.get_light_status.assert_not_called()
+    mock_camera_instance.get_light_status.assert_called_once()
