@@ -12,7 +12,6 @@ import io
 import subprocess
 import os
 import tempfile
-from typing import List
 import aiofiles
 from pytapo import Tapo
 
@@ -66,12 +65,12 @@ class Convert:
         """
         if self.addedChunks < 100:
             return 50
-        elif self.addedChunks < 1000:
+        if self.addedChunks < 1000:
             return 250
-        elif self.addedChunks < 10000:
+        if self.addedChunks < 10000:
             return 5000
-        else:
-            return self.addedChunks / 2
+
+        return self.addedChunks / 2
 
     # calculates real stream length, hard on processing since it has to go through all the frames
     def calculateLength(self):
@@ -119,6 +118,7 @@ class Convert:
         """
         Pytapo
         """
+        lastKnownLength = 0
         if bool(self.known_lengths) is True:
             lastKnownChunk = list(self.known_lengths)[-1]
             lastKnownLength = self.known_lengths[lastKnownChunk]
@@ -133,10 +133,10 @@ class Convert:
             calculatedLength = self.calculateLength()
             if calculatedLength is not False:
                 return calculatedLength
-            else:
-                if bool(self.known_lengths) is True:
-                    bytesPerChunk = lastKnownChunk / lastKnownLength
-                    return self.addedChunks / bytesPerChunk
+
+            if bool(self.known_lengths) is True:
+                bytesPerChunk = lastKnownChunk / lastKnownLength
+                return self.addedChunks / bytesPerChunk
         else:
             bytesPerChunk = lastKnownChunk / lastKnownLength
             return self.addedChunks / bytesPerChunk
@@ -206,20 +206,24 @@ class Downloader:
         """
         Pytapo
         """
-        if callbackFunc is not None:
-            callbackFunc("Starting download")
-        async for status in self.download():
+        try:
+            status = {}
             if callbackFunc is not None:
-                callbackFunc(status)
-            pass
-        if callbackFunc is not None:
-            callbackFunc("Finished download")
+                callbackFunc("Starting download")
+            async for status in self.download():
+                if callbackFunc is not None:
+                    callbackFunc(status)
 
-        md5Hash = await self.md5(status["fileName"])
+            if callbackFunc is not None:
+                callbackFunc("Finished download")
 
-        status["md5"] = "" if md5Hash is False else md5Hash
+            md5Hash = await self.md5(status["fileName"])
 
-        return status
+            status["md5"] = "" if md5Hash is False else md5Hash
+
+            return status
+        except KeyError:
+            return {}
 
     async def download(self, retry=False):
         """
@@ -229,7 +233,8 @@ class Downloader:
         while downloading:
             segmentLength = self.endTime - self.startTime
             if self.fileName is None:
-                fileName = os.path.join(self.outputDirectory, f"{self.camera_name}____{self.recording_date}____{self.recording_id}.mp4")
+                fileName = os.path.join(self.outputDirectory,
+                                        f"{self.camera_name}____{self.recording_date}____{self.recording_id}.mp4")
             else:
                 fileName = os.path.join(self.outputDirectory, self.fileName)
             if (
@@ -428,19 +433,5 @@ async def download_async(interface, camera_name: str, date: str, recording_id):
                 False,
                 50,
             )
-            async for status in downloader.download():
-                statusString = status["currentAction"] + " " + status["fileName"]
-                if status["progress"] > 0:
-                    statusString += (
-                            ": "
-                            + str(round(status["progress"], 2))
-                            + " / "
-                            + str(status["total"])
-                    )
-                else:
-                    statusString += "..."
-            #    print(
-            #        statusString + (" " * 10) + "\r",
-            #        end="",
-            #    )
-            # print("")
+            async for _ in downloader.download():
+                pass

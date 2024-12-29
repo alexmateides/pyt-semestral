@@ -23,13 +23,14 @@ API_KEY = os.getenv("API_KEY")
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(fastapi_app: FastAPI):
     """
     FastAPI lifespan manager to run movement_listener for the whole duration
     Args:
 
     Returns:
     """
+    fastapi_app.get('/alive')
     # Create a task to run the listener in the background
     task = asyncio.create_task(movement_listener())
 
