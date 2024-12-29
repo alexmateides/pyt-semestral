@@ -6,9 +6,10 @@ from unittest.mock import patch
 import pytest
 from dotenv import load_dotenv, find_dotenv
 from fastapi.testclient import TestClient
-from app.__main__ import app
+from app.main import app
 from app.camera.tapo_320ws.interface import Tapo320WSBaseInterface
 from app.database.sqlite_interface import SqliteInterface
+from typing_extensions import override
 
 load_dotenv(find_dotenv())
 API_KEY = os.getenv("API_KEY")

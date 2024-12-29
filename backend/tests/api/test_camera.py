@@ -3,7 +3,7 @@
 """
 from unittest.mock import MagicMock, patch
 
-from app.tests.conftest import TEST_CAMERA
+from tests.conftest import TEST_CAMERA
 
 # mock data
 mock_camera = TEST_CAMERA

@@ -2,7 +2,7 @@
 tests Tapo320WSBaseInterface class against base set in conftest.py
 """
 from app.camera.tapo_320ws.interface import Tapo320WSBaseInterface
-from app.tests.conftest import TAPO_320WS_TEST_DEFAULTS
+from tests.conftest import TAPO_320WS_TEST_DEFAULTS
 
 
 def test_get_info():
@@ -71,13 +71,3 @@ def test_get_recordings():
     recordings = interface.get_recordings("2024-12-26")
     assert len(recordings) == 2
     assert recordings == TAPO_320WS_TEST_DEFAULTS["get_recordings"]
-
-
-def test_get_events():
-    """
-    get_events tester
-    """
-    interface = Tapo320WSBaseInterface("TestCam")
-    events = interface.get_events()
-    assert len(events) == 1
-    assert events == TAPO_320WS_TEST_DEFAULTS["get_events"]

@@ -3,7 +3,7 @@ tests for tapo320ws/utils
 """
 from unittest.mock import MagicMock, patch
 from app.camera.tapo_320ws.utils import get_auth_by_name, list_tapo_320ws_camera_names
-from app.tests.conftest import TEST_CAMERA, TEST_CAMERA2
+from tests.conftest import TEST_CAMERA, TEST_CAMERA2
 
 mock_camera = TEST_CAMERA
 
