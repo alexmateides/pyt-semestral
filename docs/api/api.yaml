@@ -19,6 +19,7 @@ paths:
             application/json:
               schema:
                 type: string
+                example: "Alive!"
   /tapo-320ws/info/{name}:
     get:
       tags:
@@ -38,6 +39,36 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  device_info:
+                    type: object
+                    properties:
+                      basic_info:
+                        type: object
+                        properties:
+                          device_type: { type: string }
+                          device_info: { type: string }
+                          features: { type: number }
+                          barcode: { type: string }
+                          device_model: { type: string }
+                          sw_version: { type: string }
+                          device_name: { type: string }
+                          hw_version: { type: string }
+                          device_alias: { type: string }
+                          mobile_access: { type: number }
+                          mac: { type: string }
+                          dev_id: { type: string }
+                          hw_id: { type: string }
+                          oem_id: { type: string }
+                          hw_desc: { type: string }
+                          manufacturer_name: { type: string }
+                          region: { type: string }
+                          ffs: { type: boolean }
+                          is_cal: { type: boolean }
+                          avatar: { type: string }
+                          has_set_location_info: { type: number }
+                          longitude: { type: number }
+                          latitude: { type: number }
   /tapo-320ws/light/{name}:
     get:
       tags:
@@ -57,6 +88,9 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  status: { type: number }
+                  rest_time: { type: number }
     post:
       tags:
         - Tapo320WS
@@ -75,6 +109,9 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  status: { type: number }
+                  rest_time: { type: number }
   /tapo-320ws/night/{name}:
     get:
       tags:
@@ -94,6 +131,8 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  status: { type: number }
     post:
       tags:
         - Tapo320WS
@@ -112,69 +151,8 @@ paths:
             application/json:
               schema:
                 type: object
-  /tapo-320ws/recordings/{name}:
-    get:
-      tags:
-        - Tapo320WS
-      summary: Get recordings
-      parameters:
-        - name: name
-          in: path
-          required: true
-          description: Name of the camera
-          schema:
-            type: string
-        - name: start_date
-          in: query
-          required: true
-          description: Start date (YYYY-MM-DD)
-          schema:
-            type: string
-        - name: end_date
-          in: query
-          required: true
-          description: End date (YYYY-MM-DD)
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Recordings retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-    post:
-      tags:
-        - Tapo320WS
-      summary: Download recordings
-      parameters:
-        - name: name
-          in: path
-          required: true
-          description: Name of the camera
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                date:
-                  type: string
-                  description: Recording date (YYYY-MM-DD)
-                id:
-                  type: string
-      responses:
-        "200":
-          description: Recording downloaded successfully
-          content:
-            application/json:
-              schema:
-                type: string
+                properties:
+                  status: { type: number }
   /tapo-320ws/stream/{name}:
     get:
       tags:
@@ -197,68 +175,33 @@ paths:
                 properties:
                   streamUrl:
                     type: string
-                    description: WebSocket URL for streaming
-  /camera:
+                    example: "ws://"
+  /tapo-320ws/recordings/{name}:
     get:
       tags:
-        - Camera
-      summary: Get all cameras
+        - Tapo320WS
+      summary: Get recordings
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: Name of the camera
+          schema:
+            type: string
       responses:
         "200":
-          description: List of cameras retrieved successfully
+          description: Recordings retrieved successfully
           content:
             application/json:
               schema:
                 type: array
                 items:
                   type: object
-    post:
-      tags:
-        - Camera
-      summary: Add or update camera
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                model:
-                  type: string
-                ip:
-                  type: string
-                username:
-                  type: string
-                password:
-                  type: string
-                camera_username:
-                  type: string
-                camera_password:
-                  type: string
-      responses:
-        "200":
-          description: Camera added or updated successfully
-          content:
-            application/json:
-              schema:
-                type: object
-    delete:
-      tags:
-        - Camera
-      summary: Delete camera
-      parameters:
-        - name: name
-          in: query
-          required: true
-          description: Name of the camera to delete
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Camera deleted successfully
-          content:
-            application/json:
-              schema:
-                type: object
+                  properties:
+                    startTime: { type: string, example: "14:47:43" }
+                    endTime: { type: string, example: "14:48:50" }
+                    vedio_type: { type: number }
+                    duration_seconds: { type: number }
+                    date: { type: string, example: "2024-12-26" }
+                    id: { type: string }
+                    downloaded: { type: boolean }
