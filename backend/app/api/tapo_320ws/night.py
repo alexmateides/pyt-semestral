@@ -24,11 +24,16 @@ async def get_light_status(name: str) -> JSONResponse:
     interface = Tapo320WSBaseInterface(name)
 
     # get light status
-    response = interface.get_night_vision_status()
+    status = interface.get_night_vision_status()
+
+    if status in ('off', 'auto'):
+        status = {'status': 0}
+    else:
+        status = {'status': 1}
 
     logger.info('[GET][/tapo-w320s/night] %s', name)
 
-    return JSONResponse(status_code=200, content=response)
+    return JSONResponse(status_code=200, content=status)
 
 
 @router.post("/night/{name}")
@@ -43,13 +48,17 @@ async def change_floodlight_status(name: str) -> JSONResponse:
     # connect to interface
     interface = Tapo320WSBaseInterface(name)
 
-    # change light status
-    interface.change_night_vision_status()
-
-    # sleep to sync the light_status
-    await asyncio_sleep(0.3)
+    # get old status
 
     status = interface.get_night_vision_status()
+
+    if status in ('off', 'auto'):
+        status = {'status': 1}
+    else:
+        status = {'status': 0}
+
+    # change light status
+    interface.change_night_vision_status()
 
     logger.info('[POST][/tapo-w320s/night] %s', name)
 
