@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
-  title: Tapo 320WS API
-  description: API documentation for the Tapo 320WS endpoints, camera management, and utility endpoints.
+  title: Camera system backend API
+  description: API documentation for the backend REST API
   version: "1.0.0"
 servers:
   - url: http://localhost:8000
@@ -166,17 +166,15 @@ paths:
                 date:
                   type: string
                   description: Recording date (YYYY-MM-DD)
-                id_list:
-                  type: array
-                  items:
-                    type: string
+                id:
+                  type: string
       responses:
         "200":
-          description: Recordings downloaded successfully
+          description: Recording downloaded successfully
           content:
             application/json:
               schema:
-                type: object
+                type: string
   /tapo-320ws/stream/{name}:
     get:
       tags:
