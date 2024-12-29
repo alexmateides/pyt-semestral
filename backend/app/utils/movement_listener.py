@@ -34,8 +34,7 @@ async def format_events(event: dict) -> str:
         camera_name:\t{event['camera_name']}
         start_time:\t{event['start_time']}
         end_time:\t{event['end_time']}
-        alarm_type:\t{event['alarm_type']} 
-        """
+        alarm_type:\t{event['alarm_type']}"""
 
         return result_str
 

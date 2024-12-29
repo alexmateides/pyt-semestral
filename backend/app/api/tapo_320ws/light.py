@@ -1,7 +1,6 @@
 """
 API endpoint for getting and changing light status
 """
-from asyncio import sleep as asyncio_sleep
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from app.camera.tapo_320ws.interface import Tapo320WSBaseInterface
