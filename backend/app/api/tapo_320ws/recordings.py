@@ -23,6 +23,9 @@ RECORDINGS_PATH = os.path.join(RECORDINGS_PATH, 'recordings')
 
 
 class DownloadRecordingsBody(BaseModel):
+    """
+    pydantic body model for API calls
+    """
     id: str
     date: str
 

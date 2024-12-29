@@ -18,5 +18,5 @@ COPY . .
 EXPOSE 8000
 
 ENV PYTHONPATH=/backend
-
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["/bin/bash", "-c"]
+CMD ["uvicorn app.main:app --host 0.0.0.0 --port 8000"]
