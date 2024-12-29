@@ -35,4 +35,14 @@ jobs:
       - name: Add CNAME for Custom Domain
         run: echo "pyt-semestral-docs.mateides.com" > docs/CNAME
 
+      - name: Install LaTeX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y texlive-latex-base texlive-latex-extra texlive-fonts-recommended
+
+      - name: Compile LaTeX Report
+        working-directory: ./report
+        run: |
+          pdflatex report.tex
+
       - run: mkdocs gh-deploy --force
