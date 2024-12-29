@@ -1,12 +1,13 @@
 """
 API endpoint for listing and downloading camera recordings to the server
 """
-from typing import List
 import os
 from datetime import datetime
 from fastapi import APIRouter
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.exceptions import HTTPException
 from pydantic import BaseModel
+from app.camera.tapo_320ws.utils import get_downloaded_recordings
 from app.camera.tapo_320ws.interface import Tapo320WSBaseInterface
 from app.utils.time_utils import iter_dates, timestamp_to_string
 from app.camera.tapo_320ws.download import download_async
@@ -16,12 +17,14 @@ from app.utils.logger import Logger
 router = APIRouter()
 logger = Logger('server_logger.api/tapo_320ws/recordings').get_child_logger()
 
+# get /backend/recordings
+RECORDINGS_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+RECORDINGS_PATH = os.path.join(RECORDINGS_PATH, 'recordings')
 
-class StringList(BaseModel):
-    """
-    Simple pydantic model for specifying body parameters
-    """
-    content: List[str]
+
+class DownloadRecordingsBody(BaseModel):
+    id: str
+    date: str
 
 
 # Retrieve camera info
@@ -50,6 +53,8 @@ async def get_recordings(name: str, start_date: str, end_date: str) -> JSONRespo
 
         tmp_recordings = []
 
+        downloaded_recordings = get_downloaded_recordings(name, RECORDINGS_PATH)
+
         # format the recordings into human-readable format
         for recording in recordings:
             record_key = list(recording.keys())[0]
@@ -59,6 +64,7 @@ async def get_recordings(name: str, start_date: str, end_date: str) -> JSONRespo
             record["id"] = record_key
             record["startTime"] = timestamp_to_string(record["startTime"])
             record["endTime"] = timestamp_to_string(record["endTime"])
+            record["downloaded"] = f"{record['date']}____{record['id']}" in downloaded_recordings
             recording[record_key] = record
             tmp_recordings.append(record)
 
@@ -69,7 +75,7 @@ async def get_recordings(name: str, start_date: str, end_date: str) -> JSONRespo
 
 
 @router.post("/recordings/{name}")
-async def download_recordings(name: str, date: str, id_list: StringList) -> JSONResponse:
+async def download_recordings(name: str, body: DownloadRecordingsBody) -> JSONResponse:
     """
     Downloads recording from camera of {name} to /recordings to be later uploaded to web app
     Args:
@@ -77,23 +83,24 @@ async def download_recordings(name: str, date: str, id_list: StringList) -> JSON
 
         DATE FORMAT: YYYY-MM-DD
         date:       date of the recordings
-        id_list:    id list of the recordings
+        id:         id of the recording
 
     Returns:        None
     """
     # format date
-    logger.info('[POST][/tapo-w320s/recordings] request -  %s:\t%s', name, date)
-    date = datetime.strptime(date, "%Y-%m-%d")
+    logger.info('[POST][/tapo-w320s/recordings] request -  %s:\t%s', name, body.date)
+    date = datetime.strptime(body.date, "%Y-%m-%d")
     date = date.strftime("%Y%m%d")
 
     # connect to interface
     interface = Tapo320WSBaseInterface(name)
 
-    await download_async(interface.tapo_interface, date, id_list.content)
+    await download_async(interface.tapo_interface, name, date, body.id)
 
-    logger.info('[POST][/tapo-w320s/recordings] downloaded - %s:\t%s', name, date)
+    logger.info('[POST][/tapo-w320s/recordings] downloaded - %s:\t%s', name, body.date)
 
     return JSONResponse(status_code=200, content="Recording download successful")
+
 
 @router.delete("/recordings")
 async def delete_recordings() -> JSONResponse:
@@ -103,11 +110,8 @@ async def delete_recordings() -> JSONResponse:
         name:   name of the camera
     Returns:
     """
-    recordings_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-    recordings_path = os.path.join(recordings_path, "recordings")
-
-    for filename in os.listdir(recordings_path):
-        file_path = os.path.join(recordings_path, filename)
+    for filename in os.listdir(RECORDINGS_PATH):
+        file_path = os.path.join(RECORDINGS_PATH, filename)
 
         # check if it's recording (.mp4)
         if os.path.isfile(file_path) and filename.endswith('.mp4'):
@@ -117,3 +121,47 @@ async def delete_recordings() -> JSONResponse:
     logger.info('[DELETE][/tapo-w320s/recordings]')
 
     return JSONResponse(status_code=200, content="Recording deletion successful")
+
+
+@router.post("/recordings/download/{name}")
+async def get_recordings_download(name: str, body: DownloadRecordingsBody) -> FileResponse:
+    """
+    Downloads a recording to client
+    name:   name of the camera
+    body:   body parameters of recording
+    """
+    recording_date = body.date
+    recording_id = body.id
+
+    recording_filename = f"{name}____{recording_date}____{recording_id}.mp4"
+    recording_file_path = os.path.join(RECORDINGS_PATH, recording_filename)
+
+    # recording is already downloaded to server
+    if os.path.isfile(recording_file_path):
+        logger.info("Recording %s sent to client", recording_filename)
+        return FileResponse(
+            recording_file_path,
+            media_type="video/mp4",
+            filename=recording_filename,
+        )
+
+    # recording needs to be downloaded to server
+    interface = Tapo320WSBaseInterface(name)
+
+    # format the date to YYYYMMDD
+    recording_date = datetime.strptime(recording_date, "%Y-%m-%d")
+    recording_date = recording_date.strftime("%Y%m%d")
+    logger.info("Downloading %s to server", recording_filename)
+    await download_async(interface.tapo_interface, name, recording_date, recording_id)
+
+    # send the file to client
+    if os.path.isfile(recording_file_path):
+        logger.info("Recording %s sent to client", recording_filename)
+        return FileResponse(
+            recording_file_path,
+            media_type="video/mp4",
+            filename=recording_filename,
+        )
+
+    logger.error("Downloading of %s failed", recording_filename)
+    return HTTPException(status_code=404, detail="Recording download failed")

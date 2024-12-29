@@ -1,6 +1,8 @@
 """
 API endpoint for opening camera stream websocket
 """
+import asyncio
+
 from fastapi import APIRouter, WebSocket, WebSocketException, WebSocketDisconnect
 from fastapi.responses import JSONResponse
 from app.camera.tapo_320ws.interface import Tapo320WSBaseInterface
@@ -52,6 +54,10 @@ async def websocket_stream(websocket: WebSocket, name: str):
         # keep WebSocket connection alive
         while True:
             await websocket.receive_text()
+
+    except asyncio.TimeoutError:
+        logger.info("Client %s timed out, closing connection", name)
+        await websocket.close()
 
     except WebSocketDisconnect as disconnect_error:
         logger.info('[WEBSOCKET][/tapo-w320s/stream] %s - client dicsonnected: %s, %s', name, disconnect_error.code,

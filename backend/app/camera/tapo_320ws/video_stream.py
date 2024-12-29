@@ -6,6 +6,7 @@ import base64
 import threading
 from typing import Dict, List
 import cv2
+from fastapi.websockets import WebSocketDisconnect
 from websockets.exceptions import WebSocketException, ConnectionClosed
 from app.utils.logger import Logger
 
@@ -43,6 +44,12 @@ class RTSPStreamer:
                 # no clients -> remove references
                 del self.clients[rtsp_url]
 
+    def remove_all_clients(self, rtsp_url: str):
+        """Removes all clients"""
+        if rtsp_url in self.clients:
+            del self.clients[rtsp_url]
+            logger.info("Removed all clients from stream %s", rtsp_url)
+
     async def send_to_clients(self, rtsp_url: str, frame_bytes: bytes):
         """
         Encodes stream (frame) data and sends it to clients.
@@ -68,13 +75,23 @@ class RTSPStreamer:
         Async get frames from self.queues and send them to clients
         """
         queue = self.queues[rtsp_url]
-        while True:
-            # if no clients, stop streaming frames
-            if not self.clients.get(rtsp_url):
-                break
+        try:
+            while True:
+                # if no clients, stop streaming frames
+                if not self.clients.get(rtsp_url):
+                    break
 
-            frame_bytes = await queue.get()
-            await self.send_to_clients(rtsp_url, frame_bytes)
+                frame_bytes = await queue.get()
+                await self.send_to_clients(rtsp_url, frame_bytes)
+
+        except WebSocketDisconnect as disconnect_error:
+            logger.info("webSocket disconnected %s", disconnect_error)
+
+        finally:
+            # closes the stream on exception
+            self.remove_all_clients(rtsp_url)
+
+
 
     def start_stream(self, rtsp_url: str):
         """

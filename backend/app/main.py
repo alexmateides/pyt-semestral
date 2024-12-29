@@ -66,7 +66,7 @@ async def handle_exceptions(request: Request, call_next):
 
     # catches all other unhandled exceptions -> prevents server crash
     except Exception as error:
-        main_logger.exception(error)
+        main_logger.critical("Unhandled exception", exc_info=error)
 
 
 # API Access
@@ -100,7 +100,7 @@ app.include_router(camera_router, prefix="/camera")
 # CORS middleware for resource sharing with frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000", "http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]

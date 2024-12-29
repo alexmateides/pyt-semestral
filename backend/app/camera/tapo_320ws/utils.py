@@ -1,6 +1,7 @@
 """
 Utility function for Tapo320WS cameras
 """
+import os
 from typing import Tuple, List
 import sqlite3
 
@@ -59,3 +60,22 @@ def list_tapo_320ws_camera_names() -> List:
 
     except sqlite3.Error as error:
         raise error
+
+
+def get_downloaded_recordings(camera_name: str, path_recordings: str) -> set:
+    """
+    Returns downloaded recordings in /recordings folder
+    Expects format {camera_name}____{date - YYYY-MM-DD}____{id}.mp4
+    """
+    if not os.path.isdir(path_recordings):
+        return set()
+
+    downloaded_recordings = set()
+
+    for file in os.listdir(path_recordings):
+        if file.endswith(".mp4") and file.startswith(camera_name):
+            without_mp4 = file.split(".mp4")[0]
+            camera_name, recording_date, recording_id = without_mp4.split("____")
+            downloaded_recordings.add(f"{recording_date}____{recording_id}")
+
+    return downloaded_recordings

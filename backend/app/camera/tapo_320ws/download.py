@@ -162,6 +162,9 @@ class Downloader:
             startTime: int,
             endTime: int,
             timeCorrection: int,
+            camera_name: str,
+            recording_id: str,
+            recording_date: str,
             outputDirectory="./",
             padding=None,
             overwriteFiles=None,
@@ -174,6 +177,9 @@ class Downloader:
         self.padding = padding
         self.fileName = fileName
         self.timeCorrection = timeCorrection
+        self.camera_name = camera_name
+        self.recording_id = recording_id
+        self.recording_date = recording_date
         if padding is None:
             self.padding = 5
         else:
@@ -221,15 +227,9 @@ class Downloader:
         """
         downloading = True
         while downloading:
-            dateStart = datetime.fromtimestamp(int(self.startTime)).strftime(
-                "%Y-%m-%d_%H-%M-%S"
-            )
-            dateEnd = datetime.fromtimestamp(int(self.endTime)).strftime(
-                "%Y-%m-%d_%H-%M-%S"
-            )
             segmentLength = self.endTime - self.startTime
             if self.fileName is None:
-                fileName = os.path.join(self.outputDirectory, f"{dateStart}-{dateEnd}.mp4")
+                fileName = os.path.join(self.outputDirectory, f"{self.camera_name}____{self.recording_date}____{self.recording_id}.mp4")
             else:
                 fileName = os.path.join(self.outputDirectory, self.fileName)
             if (
@@ -388,32 +388,41 @@ class Downloader:
                             downloading = False
 
 
-async def download_async(interface, date: str, recording_id_list: List[str]):
+async def download_async(interface, camera_name: str, date: str, recording_id):
     """
     Own downloader implementation
     Args:
         interface:              pytapo interface
-        date:                   date of the recordings
-        recording_id_list:      recording ids
+        camera_name:            name of the camera
+        date (YYYYMMDD):        date of the recordings
+        recording_id:      recording ids
     """
     # navigate to /recordings
     output_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
     output_dir = os.path.join(output_dir, 'recordings')
+
+    if not os.path.isdir(output_dir):
+        os.makedirs(output_dir)
     # print("Getting recordings...")
     recordings = interface.getRecordings(date)
+
     timeCorrection = interface.getTimeCorrection()
     for recording in recordings:
         for key in recording:
             # skip if recording not wanted
-            if key not in recording_id_list:
+            if key != recording_id:
                 # print(key)
                 continue
 
+            downloader_date = datetime.strptime(date, "%Y%m%d").strftime("%Y-%m-%d")
             downloader = Downloader(
                 interface,
                 recording[key]["startTime"],
                 recording[key]["endTime"],
                 timeCorrection,
+                camera_name,
+                recording_id,
+                downloader_date,
                 output_dir,
                 None,
                 False,
@@ -434,4 +443,4 @@ async def download_async(interface, date: str, recording_id_list: List[str]):
             #        statusString + (" " * 10) + "\r",
             #        end="",
             #    )
-            #print("")
+            # print("")
