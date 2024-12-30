@@ -20,6 +20,7 @@ from app.utils.movement_listener import movement_listener
 load_dotenv(find_dotenv())
 
 API_KEY = os.getenv("API_KEY")
+FRONTEND_URL = os.getenv("FRONTEND_URL")
 
 
 @asynccontextmanager
@@ -101,7 +102,7 @@ app.include_router(camera_router, prefix="/camera")
 # CORS middleware for resource sharing with frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_origins=[FRONTEND_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
