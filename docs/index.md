@@ -14,10 +14,6 @@ Zabezpečovací zařízení s kamerovým systémem:
 
 - Do systému půjde připojit 1+ kamer (přes Wi-Fi)
 - Bude umožňovat přístup do systému přes internet
-- Kamery budou detekovat pohyb - při vyhodnocení "poplachu" pošlou oznámení přes SMS (GSM přijímač)
-- Bude umožňeno uchovávat záznam z kamer (buď manuální zapnutí přes prohlížeč nebo automaticky po spuštění poplachu)
-
-### Roadmap
-
-- [x] Implementováno
-- [ ] Neimplementováno
+  - uživatel si může zobrazit stream a ovládat základní kamerové prvky - světlo a režim nočního vidění
+- Kamery budou detekovat pohyb - při vyhodnocení "poplachu" pošlou oznámení přes e-mail
+- Bude umožněno uchovávat záznam z kamer (automaticky po spuštění poplachu)
